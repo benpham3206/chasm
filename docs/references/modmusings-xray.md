@@ -1,37 +1,47 @@
-# modmusings / Matthew Encina — design process notes
+# Ref: modmusings — XRAY
 
-*Researched 2026-09-29. Relevant because Ben owns the PBTFans XRAY set Encina designed.*
+*2026-09-29. Ben owns the PBTFans XRAY set.*
 
 ## Who
-Matthew Encina, founder/creative director of Mod Musings, Inc. Designer + YouTuber. Designed in collaboration with manufacturers rather than solo-fabbing everything.
 
-## Design thesis (X-Ray Collection)
-"The design for the X-Ray Collection comes from a combination of three things: the nostalgia (and resurgence) of the transparent tech trend from my childhood, my current obsession with translucent polycarbonate keyboards, and my appreciation for minimal design aesthetics."
-- Lesson: start with a written aesthetic thesis, then let every decision serve it. Ben's equivalent: transparent-tech / x-ray theme.
+- Matthew Encina, founder/creative director, Mod Musings, Inc.
+- Designer + YouTuber; designs, partners manufacture
 
-## Process pattern
-- **Year-long endeavors, documented publicly.** Both X-Ray and the Encore keyboard took ~a year, concept → design → prototyping → manufacturing → marketing, all filmed/written up.
-- **Collaborate with specialists.** Keycaps via PBTfans, Encore via Mode Designs, Bauer Lite X-Ray via Omnitype, cable via Wired In, Protagonist via Wired In. He designs; partners manufacture.
-- **Manufacturing constraints drive design.** Double-shot molding leaves visible "holes" in closed legends on translucent caps — his novel fix: paint the back of the keycaps with white Tamiya acrylic paint. Documented in the X-Ray disclaimer doc. This is exactly the kind of wrinkle Ben's engineering journal should capture.
+## XRAY thesis
 
-## X-Ray keycaps (the set Ben owns)
-- Clear ABS + white (WS1) legends, Cherry profile, double-shot, semi-transparent.
-- Opaque base — not for per-key RGB shine-through (underglow only). Matches our lighting plan.
-- Kits: Base, 40s, International, Spacebars.
+- Inputs: transparent-tech nostalgia, translucent PC keyboards, minimal design
+- Lesson: written aesthetic thesis first; every decision serves it. Ours: transparent-tech / x-ray.
 
-## X-Ray cable (Wired In collab)
-- Translucent silicone, white shielding, conductors visible.
-- Custom die-cast copper alloy USB shells, bead-blasted, matte silver PVD, knurled grip, slim silhouette.
-- USB-C to C 4ft / 240W PD; USB-A to C 4ft / 65W.
+## Process
 
-## Keyboard collabs — specs that validate our choices
-- **Protagonist X-Ray Edition:** 7° typing angle, grommet mount + leaf-spring plate, full polycarbonate CNC top/bottom, e-coated alu plate, engraved steel weight w/ e-white coating, 5.1 lbs. → validates our 7° typing angle.
-- **Bauer Lite X-Ray Edition:** injection-molded polycarbonate, 5° typing angle, isolation-mounted plate.
-- **Encore (Mode Designs):** 65%, wood (white oak/walnut) + metal, 5.5° typing angle, 12.5mm front height. Plate options included **polypropylene** → validates our PP plate choice. Kits $279-289.
+- ~1 year per project, concept → manufacturing → marketing, documented publicly (X-Ray, Encore)
+- Partners: PBTfans (caps), Mode Designs (Encore), Omnitype (Bauer Lite X-Ray), Wired In (cables, Protagonist)
+- Constraint → design: double-shot leaves holes in closed legends on translucent caps; fix = white Tamiya acrylic on cap backs (X-Ray disclaimer doc). Journal-worthy wrinkle type.
 
-## Content worth watching/reading
-- Encore documentary: "How I Turned my Idea Into a Product – The Encore Keyboard" — https://www.youtube.com/watch?v=FLdCY4pKNV0 (year-long journey, concept to market)
-- X-Ray collection + process: https://www.modmusings.com/x-ray-collection
-- "How to Design Your Own Keycap Set" — modmusings.com/blog (couldn't open, Instagram-blocked link)
-- "How to Build a Custom Mechanical Keyboard" guide — modmusings.com
-- He designs in Shapr3D ("How I Design Spaces and Use Shapr3d").
+## XRAY keycaps (owned)
+
+- Clear ABS + WS1 legends, Cherry, double-shot, semi-transparent
+- Opaque base → no per-key shine-through; underglow only (matches plan)
+- Kits: Base, 40s, International, Spacebars
+
+## XRAY cable (Wired In)
+
+- Translucent silicone, white shielding, visible conductors
+- Die-cast copper alloy shells, bead-blast, matte silver PVD, knurled, slim
+- C-to-C 4 ft / 240 W PD; A-to-C 4 ft / 65 W
+
+## Board collabs
+
+| Board | Specs | Validates |
+|---|---|---|
+| Protagonist X-Ray | 7°, grommet + leaf-spring plate, full PC CNC, e-coated alu plate, engraved steel weight (e-white), 5.1 lb | 7° angle |
+| Bauer Lite X-Ray | Injection PC, 5°, isolation-mounted plate | — |
+| Encore (Mode) | 65%, white oak/walnut + metal, 5.5°, 12.5 mm front, PP plate option, $279-289 | PP plate |
+
+## Links
+
+- Encore doc: https://www.youtube.com/watch?v=FLdCY4pKNV0
+- X-Ray: https://www.modmusings.com/x-ray-collection
+- "How to Design Your Own Keycap Set" — modmusings.com/blog (blocked)
+- "How to Build a Custom Mechanical Keyboard" — modmusings.com
+- Designs in Shapr3D
