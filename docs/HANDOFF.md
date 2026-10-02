@@ -12,6 +12,9 @@
 
 If Devin was cut off: read blender/NEXT.md + PROGRESS.md, then resume the session (command above) or start a new one with the brief + NEXT.md.
 
+## 2026-10-02 03:30 status
+Devin hit its DAILY QUOTA (resource_exhausted) during the resume-03 run, after its own lead review. Latest drafts: renders/review/v1_contact.jpg (03:24). Pending work = Devin's spec section G (G1-G7, blender/tmp/spec-resume02.md, not in git) + blender/orchestrator/resume-03.md: clear X-Ray caps (not smoked), legends ~3x bigger, gull C meeting at one point beside G/H, hero framing, 05 weight/U visibility, plinths less white, 06b ports. Resume when quota resets: `devin -r lucky-idea --prompt-file blender/orchestrator/resume-03.md -p ...` (see above), or check blender/NEXT.md first.
+
 ## Decisions since gates doc (2026-10-01/02)
 Layout 68 keys (right B, no left Fn, 8°); dongle hub w/ OLED + stainless knob; RF modules; full frost + clear bottom; polished stainless weights + gull C inlay; tenting = Duo-style metal U-frame + locking linkage, 0°/4° (docs/decisions/2026-10-01-tenting.md, ref/tenting/); **mount = gasket** (below).
 
