@@ -12,5 +12,5 @@
 | Why | Matches Duo; OLED + hub on USB power (never dead on battery, no OLED sleep compromise); halves become identical-role peripherals → better battery life, simpler boards |
 | Costs | 3rd board + 3rd enclosure (Blender/SolidWorks object); halves only type through the dongle (ZMK roles are compile-time; direct BLE to a phone/laptop = other firmware build) |
 | Lighting | Halves are always on battery now → underglow on halves only when USB-C plugged, or very dim (decide with lighting) |
-| Encoder | Left macro column candidate stays; ZMK forwards peripheral encoders in recent releases — verify Phase 3 |
+| Encoder | Rev 2026-10-02: on the right half, right of Backspace (case grows ~9 mm at the upper outer edge); hub has no knob. ZMK peripheral encoder support — verify Phase 3 |
 | Affects | Roadmap §2, §5, §6, §7; BOM electronics; gates A7, A8; MCU decision (USB pins now needed in the dongle only) |

@@ -5,5 +5,5 @@ REMAINING - do these, re-render drafts + contact sheet, update PROGRESS.md and N
 2. G4: 05_underside weight renders as a black mirror; add the glossy-only reflection card (spec G4) and grey foam is already in; meet the G4 metrics.
 3. 07_exploded: the hub's exploded stack overlaps the right half's lowest layers in frame - move it clear (e.g. further forward/left) so all three stacks read separately.
 4. 01_hero: set fills ~70% of frame width.
-Hub: knob moved to the top right (user): knob xy [17,7], OLED window [-11,4], gull [-11,-11.5] - keep this layout and the hub orientation; 06/06b camera setups unchanged.
+Knob (user 2026-10-02): the knob is now on the RIGHT HALF, right of Backspace (design.json knob_kb; outline.py adds it as a virtual key so case + opening grow around it; build_scene skips virtual keys for switches/caps). The hub has NO knob (hub.knob_enabled false; OLED centred [0,4], gull [0,-11.5]). Keep this; re-frame 06_hub for the knob-less hub if needed (same camera angle).
 Commits: do NOT git commit or push.

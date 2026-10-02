@@ -544,11 +544,11 @@
    "gap_mm": 0.6,
    "_gap": "knob bottom floats this far above the top",
    "material": "stainless_polished",
-   "_xy": "top right from the user (user 2026-10-02)"
+   "_xy": "unused: hub has no knob since 2026-10-02 (moved to the keyboard)"
   },
   "oled": {
    "window_xy": [
-    -11.0,
+    0.0,
     4.0
    ],
    "window_mm": [
@@ -567,7 +567,7 @@
   },
   "gull": {
    "xy": [
-    -11.0,
+    0.0,
     -11.5
    ],
    "wing_span_mm": 8.0,
@@ -587,7 +587,8 @@
    ],
    "z_mm": 6.4,
    "_note": "back face (+y); same opening/shell as the halves"
-  }
+  },
+  "knob_enabled": false
  },
  "poses": {
   "_doc": "world placement; each half is first rotated so its inner edge is parallel to world y (align), then the pose applies",
@@ -698,7 +699,7 @@
     "stabilizers": "_stab|_wire",
     "switches": "_swb|_swt|_stem",
     "case_frame": "^[LR]_shell$|_gull",
-    "keycaps": "_cap"
+    "keycaps": "_cap|_knob"
    },
    "Hub": {
     "hub_bottom": "^hub_bottom",
@@ -1229,5 +1230,14 @@
   "Gasket tab positions are placeholders for the CAD handoff (arc-length spacing, nudged off stab/RF keepouts).",
   "U-frame pocket clears the L outer pad/bar by ~1.2-2.1 mm at W=70 (the free span is ~70 mm); tight but real clearance.",
   "Hub internals beyond PCB + RF module + OLED + encoder body are not modelled."
- ]
+ ],
+ "knob_kb": {
+  "half": "R",
+  "anchor": "R02",
+  "d_mm": 16.0,
+  "gap_after_mm": 1.0,
+  "box_mm": 18.0,
+  "z_gap_mm": 0.6,
+  "_doc": "user 2026-10-02: knob on the right half, right of Backspace. Centre = anchor pitch-box right edge + gap + d/2, anchor y. box_mm = virtual key square fed to outline.py so the case + opening grow around it. Style (knurl etc.) from hub.knob."
+ }
 }

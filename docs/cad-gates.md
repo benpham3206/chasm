@@ -18,7 +18,7 @@ Rule: Blender exchanges **numbers** (`design.json`), never meshes; SolidWorks ca
 | A6 | Inter-half link: BLE only rev 1 | **Locked 2026-10-01** | `decisions/2026-10-01-inter-half-link.md` |
 | A6b | Architecture: dongle hub (Duo-style), both halves BLE peripherals | **Locked 2026-10-01** | `decisions/2026-10-01-dongle-hub.md`; dongle = 3rd enclosure |
 | A7 | Ports: 1 USB-C per half on the inner edge; dongle upstream + 2 down | **Locked 2026-10-01** (down count = lean) | Exact edge height after stack-up |
-| A8 | OLED + knob on the hub box; no knob on halves | **Locked 2026-10-01** | Logo: gull C, polished stainless inlay, one wing per half at inner edge beside G / H; weights polished stainless |
+| A8 | OLED on the hub box; **knob on the right half, right of Backspace** (rev 2026-10-02, user); hub has no knob | **Locked** | Logo: gull C, polished stainless inlay, one wing per half at inner edge beside G / H; weights polished stainless |
 | A9 | Tenting: flip-out hinged legs | **Locked 2026-10-01** | `decisions/2026-10-01-tenting.md`; hinge part → B3 |
 | A9b | Finish: full frost, clear bottom over weights | **Working choice 2026-10-01** | `decisions/2026-10-01-case-finish.md`; lighting open |
 | A10 | Stack-up heights | Draft below | Needs A11 parts |

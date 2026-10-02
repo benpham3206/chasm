@@ -16,7 +16,31 @@ ROOT = os.path.dirname(HERE)
 def load():
     design = json.load(open(os.path.join(HERE, "design.json"), encoding="utf-8"))
     keys = json.load(open(os.path.join(ROOT, design["inputs"]["keys"]), encoding="utf-8"))
+    kv = knob_virtual_key(design, keys)
+    if kv:
+        keys["keys"].append(kv)
     return design, keys
+
+
+def knob_xy(design, keys):
+    """Keyboard knob centre (half frame, mm): right of the anchor key's pitch box."""
+    kb = design.get("knob_kb")
+    if not kb:
+        return None
+    a = next(k for k in keys["keys"] if k["id"] == kb["anchor"])
+    x = a["x_mm"] + a["w_u"] * keys["unit_mm"] / 2 + kb["gap_after_mm"] + kb["d_mm"] / 2
+    return kb["half"], x, a["y_mm"]
+
+
+def knob_virtual_key(design, keys):
+    """Square 'key' the size of the knob keepout so case outline + opening wrap the knob."""
+    kxy = knob_xy(design, keys)
+    if not kxy:
+        return None
+    half, x, y = kxy
+    return {"id": "RKNOB" if half == "R" else "LKNOB", "half": half, "label": "KNOB",
+            "w_u": design["knob_kb"]["box_mm"] / keys["unit_mm"], "x_mm": x, "y_mm": y,
+            "rot_deg": 0.0, "stab": False, "virtual": True}
 
 
 def key_rect(k, unit, cap=None):

@@ -552,6 +552,9 @@ def build(design):
     for ob in list(bpy.data.objects):          # factory-startup Cube/Light/Camera
         bpy.data.objects.remove(ob)
     keys = json.load(open(os.path.join(ROOT, design["inputs"]["keys"]), encoding="utf-8"))
+    kv = ol.knob_virtual_key(design, keys)  # keyboard knob keepout: outlines grow around it
+    if kv:
+        keys["keys"].append(kv)
     unit = keys["unit_mm"]
     D = design
     derived = {"unit_mm": unit}
@@ -617,7 +620,7 @@ def build(design):
                                    inset=D["plate"]["inset_mm"])
         pcb_pts, _, _ = ol.outline(edges, keys["keys"], half, unit,
                                  inset=D["pcb"]["inset_mm"])
-        hks = [k for k in keys["keys"] if k["half"] == half]
+        hks = [k for k in keys["keys"] if k["half"] == half and not k.get("virtual")]
 
         i_idx = next(i for i, e in enumerate(edges) if e["name"] == "inner")
         n_i, d_i = L[i_idx]
@@ -1021,6 +1024,16 @@ def build(design):
         logs.append(f"{half} gull->opening clearance {clr:.2f} mm, legends {n_leg}")
         assert clr >= lg["min_clear_to_opening_mm"], \
             f"{half} gull clearance {clr:.2f} < {lg['min_clear_to_opening_mm']}"
+        # ---- keyboard knob (user 2026-10-02): right of Backspace on the right half
+        kxy = ol.knob_xy(D, keys)
+        if kxy and kxy[0] == half:
+            kb = D["knob_kb"]
+            kstyle = dict(D["hub"]["knob"], d_mm=kb["d_mm"])
+            disc(f"{half}_knob_enc", kxy[1], kxy[2], D["stack"]["plate_z"][1],
+                 hh + kb["z_gap_mm"] - 0.2, 6.0, coll, mats["rf_can"], seg=24)
+            kob = knob_mesh(f"{half}_knob", kstyle, mats[kstyle["material"]], coll)
+            kob.location = (kxy[1] * MM, kxy[2] * MM, (hh + kb["z_gap_mm"]) * MM)
+            logs.append(f"{half} knob at ({kxy[1]:.1f}, {kxy[2]:.1f}) mm, d {kb['d_mm']}")
         g["logo_clear"] = clr
         g["open_pts"] = open_pts
         g["anchor_proj"] = proj
@@ -1561,10 +1574,11 @@ def build_hub(D, mats, coll, cut, scene_coll, geom):
                     (fy - (o["window_xy"][1] - o["window_mm"][1] / 2)) / o["window_mm"][1])
 
     kn = hc["knob"]
-    disc("hub_enc", kn["xy"][0], kn["xy"][1], hc["pcb_z"][1],
-         H + kn["gap_mm"] - 0.2, 6.0, coll, mats["rf_can"], seg=24)
-    knob = knob_mesh("hub_knob", kn, mats[kn["material"]], coll)
-    knob.location = (kn["xy"][0] * MM, kn["xy"][1] * MM, (H + kn["gap_mm"]) * MM)
+    if hc.get("knob_enabled", True):  # 2026-10-02: knob moved to the keyboard
+        disc("hub_enc", kn["xy"][0], kn["xy"][1], hc["pcb_z"][1],
+             H + kn["gap_mm"] - 0.2, 6.0, coll, mats["rf_can"], seg=24)
+        knob = knob_mesh("hub_knob", kn, mats[kn["material"]], coll)
+        knob.location = (kn["xy"][0] * MM, kn["xy"][1] * MM, (H + kn["gap_mm"]) * MM)
 
     gl = hc["gull"]
     for side in (-1, 1):  # hub shows the full logo: both wings, real mirror
