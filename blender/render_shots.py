@@ -239,7 +239,7 @@ def fit_plinth(shot, ctx):
     pts = plan_pts(subj, ctx)
     x0 = min(p.x for p in pts); x1 = max(p.x for p in pts)
     y0 = min(p.y for p in pts); y1 = max(p.y for p in pts)
-    margin = 40.0 * MM
+    margin = 25.0 * MM  # G5: 40 -> 25
     need_w = (x1 - x0) + 2 * margin
     need_d = (y1 - y0) + 2 * margin
     pw, pd, ph = ctx["design"]["studio"]["plinth_mm"]

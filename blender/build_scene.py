@@ -327,6 +327,34 @@ def ribbon(name, pts2, w, z0, z1, coll, mat, end_discs=True):
 
 # ---------------------------------------------------------------- text legends
 
+_CAP_SCALE = {}
+
+
+def font_cap_scale(font):
+    """G2 fix: Blender normalises some fonts (Segoe UI) by their full ascent/descent box,
+    so a capital is only ~0.42 x size instead of ~0.70. Measure 'H' once per font and
+    return the factor that makes cap height = 0.70 x the design size."""
+    key = font.name if font else None
+    if key in _CAP_SCALE:
+        return _CAP_SCALE[key]
+    cu = bpy.data.curves.new("_capprobe", 'FONT')
+    cu.body = "H"
+    cu.size = 1.0
+    if font:
+        cu.font = font
+    ob = bpy.data.objects.new("_capprobe", cu)
+    bpy.context.scene.collection.objects.link(ob)
+    dg = bpy.context.evaluated_depsgraph_get()
+    me = bpy.data.meshes.new_from_object(ob.evaluated_get(dg))
+    ys = [v.co.y for v in me.vertices]
+    h = (max(ys) - min(ys)) if ys else 0.7
+    bpy.data.objects.remove(ob)
+    bpy.data.meshes.remove(me)
+    bpy.data.curves.remove(cu)
+    _CAP_SCALE[key] = 0.70 / h if h > 1e-6 else 1.0
+    return _CAP_SCALE[key]
+
+
 def add_legend(cap, k, rowcfg, kc, mat, coll, fonts):
     label = k["label"]
     txt = kc["legend"].get("text", {}).get(label, label)
@@ -341,7 +369,7 @@ def add_legend(cap, k, rowcfg, kc, mat, coll, fonts):
     font = fonts["sym"] if arrows else fonts["main"]
     if font:
         cu.font = font
-    cu.size = size * MM
+    cu.size = size * MM * font_cap_scale(font if font else None)
     cu.extrude = kc["legend"]["thickness_mm"] * MM
     cu.align_x = 'CENTER' if arrows else 'LEFT'
     cu.align_y = 'CENTER' if arrows else ('BOTTOM' if mod else 'TOP')
@@ -691,7 +719,8 @@ def build(design):
         nn = len(stad)
         nvec = Vector((n_i[0], n_i[1]))
         cverts = []
-        for dpt in (-3.0, 3.0):
+        # G6: cutter must cross the whole wall (was +-3 on a 4 mm wall -> blind dimple)
+        for dpt in (-(D["case"]["wall_t_mm"] + 1.5), 3.0):
             for sx, sy in stad:
                 p = port_c + along * sx + nvec * dpt
                 cverts.append((p.x, p.y, u["z_mm"] + sy))
@@ -1468,7 +1497,7 @@ def build_hub(D, mats, coll, cut, scene_coll, geom):
                             min(u["r_mm"], u["opening_mm"][1] / 2), 4)
         nn = len(stad)
         cverts = []
-        for dpt in (Dd / 2 - 2.0, Dd / 2 + 2.0):
+        for dpt in (Dd / 2 - hc["wall_t_mm"] - 1.5, Dd / 2 + 2.0):  # G6: through the wall
             for sx, sy in stad:
                 cverts.append((x + sx, dpt, hc["usb_c"]["z_mm"] + sy))
         cfaces = [tuple(reversed(range(nn))), tuple(range(nn, 2 * nn))]

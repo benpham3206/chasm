@@ -34,7 +34,7 @@
   "_opening_inset": "SUPERSEDED for the top frame by the stagger-hugging opening (blender/out/opening.json from outline.opening); kept only as a fallback",
   "opening_r_min_mm": 1.0,
   "_opening_r_min": "min corner radius of the opening (CNC inner radius)",
-  "edge_fillet_mm": 1.0,
+  "edge_fillet_mm": 0.5,
   "_edge_fillet": "round on every outer/opening edge of the frost shell",
   "outline": {
    "_doc": "edges CCW. n_deg = outward normal; keys = which keys the line must clear (all | straight | angled | id list | not:id list); bezel = gap from the furthest key pitch box; r = fillet at the END of this edge (vertex to next edge)",
@@ -329,7 +329,7 @@
    "_doc": "h = height at top centre above the cap bottom; tilt = top normal tilted toward the user (-y); R4 = every other key"
   },
   "legend": {
-   "font": "C:/Windows/Fonts/seguisb.ttf",
+   "font": "C:/Windows/Fonts/segoeuib.ttf",
    "font_symbols": "C:/Windows/Fonts/seguisym.ttf",
    "alpha_size_mm": 3.6,
    "mod_size_mm": 2.2,
@@ -434,8 +434,8 @@
   "stroke_mm": 1.2,
   "inlay_depth_mm": 0.6,
   "_inlay": "stainless strip, top flush with the frame top, round ends",
-  "vertex_inset_mm": 0.8,
-  "_vertex_inset": "1.0->0.8 so wing ends nearly touch across the 0.2 mm seam (offset -3.0 gives L ~2.1 / R ~1.2 mm clearance)",
+  "vertex_inset_mm": 0.3,
+  "_vertex_inset": "0.8->0.3 with edge_fillet 1.0->0.5 so the steep stems of gull C sit on flat top, not the fillet (wings meet at one point across the seam)",
   "vertex_offset_mm": -3.0,
   "_vertex_offset": "shift along the inner edge, + = toward back; -3.0 clears both halves at inset 0.8",
   "anchor": {
@@ -629,9 +629,9 @@
    "yaw_deg": 0.0,
    "hub_xy": [
     0.0,
-    40.0
+    -150.0
    ],
-   "_note": "flat pose level, layer offsets along local z; gap 75->130, hub between the halves at [0,40]"
+   "_note": "hub moved in front of the halves (was between them, bridging the stacks)"
   }
  },
  "gasket": {
@@ -661,7 +661,7 @@
   "material": "foam_poron"
  },
  "explode": {
-  "gap_mm": 20.0,
+  "gap_mm": 42.0,
   "_note": "even clearance between consecutive layers' z-extents (real bboxes). u_frame below bottom; case_frame between switches and keycaps",
   "order_bottom_to_top": [
    "u_frame",
@@ -706,7 +706,8 @@
     "hub_oled": "^hub_oled",
     "hub_knob": "^hub_knob"
    }
-  }
+  },
+  "_gap": "20->42: layers read as one block at 20 (gap ~10% of half width)"
  },
  "materials": {
   "_doc": "look parameters (Principled BSDF inputs unless noted); tune in look-dev, keep the tuned values here",
@@ -737,15 +738,15 @@
   },
   "abs_clear_frosted": {
    "base": [
-    0.05,
-    0.06,
-    0.08
+    0.72,
+    0.74,
+    0.77
    ],
-   "transmission": 0.35,
-   "roughness": 0.45,
+   "transmission": 0.95,
+   "roughness": 0.12,
    "ior": 1.53,
    "shadow_transmit": 1.0,
-   "_note": "R10: smoked near-opaque cap - a clear cap tops out ~236 sRGB (transmission shows the bright plate/studio) so legend-vs-cap contrast capped ~8; smoked+emissive legend reaches 20.4 (target >=20). Look: dark smoke, glyphs readable"
+   "_note": "G1 (2026-10-02): back to clear X-Ray caps (user); contrast from lighting, not tint"
   },
   "legend_white": {
    "base": [
@@ -755,8 +756,8 @@
    ],
    "roughness": 0.35,
    "subsurface": 0.3,
-   "_note": "double-shot glyph + soft emission (2.2) so it lifts off the smoked cap",
-   "emission_w": 2.2
+   "_note": "double-shot white glyph, no emission (G1)",
+   "emission_w": 0.0
   },
   "pp_milky": {
    "base": [
@@ -882,12 +883,12 @@
   },
   "foam_poron": {
    "base": [
-    0.82,
-    0.82,
-    0.8
+    0.45,
+    0.45,
+    0.44
    ],
    "roughness": 0.9,
-   "_note": "off-white case foam"
+   "_note": "G4: grey Poron for contrast with the stowed U"
   },
   "studio_seamless": {
    "base": [
@@ -900,12 +901,12 @@
   },
   "studio_plinth": {
    "base": [
-    0.8,
-    0.81,
-    0.82
+    0.26,
+    0.27,
+    0.28
    ],
    "roughness": 0.7,
-   "_note": "light grey plinth step"
+   "_note": "mid grey so white/clear layers separate from it (0.8->0.48->0.26)"
   },
   "usb_dark": {
    "base": [
@@ -958,7 +959,7 @@
   "plinth_mm": [
    420.0,
    260.0,
-   30.0
+   25.0
   ],
   "_plinth": "low step (h 70->30); plan size + position computed per shot from subject plan bbox + 40 mm margin",
   "key_light": {
@@ -1197,7 +1198,7 @@
    "pose": "exploded",
    "view": {
     "az_deg": -30.0,
-    "el_deg": 16.0
+    "el_deg": 21.0
    },
    "lens_mm": 70.0,
    "fit": {
@@ -1208,8 +1209,8 @@
     ],
     "fill": 0.85
    },
-   "support": "plinth",
-   "_note": "low plinth under both exploded halves + hub; lowest layer rests on it"
+   "support": "desk",
+   "_note": "no plinth (it read as a slab the stacks float behind); lowest layer on the seamless; hub in front"
   }
  },
  "assumptions": [
