@@ -1,19 +1,19 @@
 {
- "6b_hub_ports": {
-  "seconds": 7.3,
+ "6_hub": {
+  "seconds": 6.6,
   "cam_mm": [
-   108.4,
-   442.9,
-   128.7
+   163.6,
+   -88.6,
+   213.0
   ],
-  "dist_mm": 337.4,
+  "dist_mm": 348.2,
   "ortho_scale_mm": null,
   "fill": 0.75,
   "frame": [
    0.125,
-   0.317,
+   0.27,
    0.875,
-   0.664
+   0.698
   ],
   "frame_ok": true,
   "samples": 48,
@@ -21,9 +21,9 @@
    640,
    800
   ],
-  "clipped_pct": 0.0,
-  "bg_mean_srgb": 199.6,
-  "bg_r_srgb": 197.5,
-  "bg_b_srgb": 203.7
+  "clipped_pct": 0.006,
+  "bg_mean_srgb": 206.1,
+  "bg_r_srgb": 203.9,
+  "bg_b_srgb": 210.2
  }
 }

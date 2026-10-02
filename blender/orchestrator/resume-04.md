@@ -5,5 +5,5 @@ REMAINING - do these, re-render drafts + contact sheet, update PROGRESS.md and N
 2. G4: 05_underside weight renders as a black mirror; add the glossy-only reflection card (spec G4) and grey foam is already in; meet the G4 metrics.
 3. 07_exploded: the hub's exploded stack overlaps the right half's lowest layers in frame - move it clear (e.g. further forward/left) so all three stacks read separately.
 4. 01_hero: set fills ~70% of frame width.
-Hub orientation and the 06/06b shots: keep exactly as they are (user).
+Hub: knob moved to the top right (user): knob xy [17,7], OLED window [-11,4], gull [-11,-11.5] - keep this layout and the hub orientation; 06/06b camera setups unchanged.
 Commits: do NOT git commit or push.

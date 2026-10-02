@@ -533,8 +533,8 @@
   "_rf": "on the PCB top, can up",
   "knob": {
    "xy": [
-    -15.0,
-    0.0
+    17.0,
+    7.0
    ],
    "d_mm": 18.0,
    "h_mm": 10.0,
@@ -543,11 +543,12 @@
    "top_chamfer_mm": 0.8,
    "gap_mm": 0.6,
    "_gap": "knob bottom floats this far above the top",
-   "material": "stainless_polished"
+   "material": "stainless_polished",
+   "_xy": "top right from the user (user 2026-10-02)"
   },
   "oled": {
    "window_xy": [
-    13.0,
+    -11.0,
     4.0
    ],
    "window_mm": [
@@ -566,7 +567,7 @@
   },
   "gull": {
    "xy": [
-    13.0,
+    -11.0,
     -11.5
    ],
    "wing_span_mm": 8.0,
