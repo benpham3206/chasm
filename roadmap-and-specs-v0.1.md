@@ -19,15 +19,15 @@
 | Layout | Split Alice, 60% ergo, Duo-inspired |
 | Switch | Keygeek Y2 linear, 48g/53g, 5-pin, factory lubed, UPE waffle stem, PA12 housing |
 | Plate | PP, soft, flex |
-| Case | CNC acrylic, frosted, clear polished window over weight (2026-09-29, XRAY theme) |
+| Case | CNC acrylic, frosted, clear polished window over weight (2026-09-29, XRAY theme) → 2026-10-01: full frost, clear bottom over weights (working choice) |
 | Case opening | Ball catch, tool-free |
 | Power | LiPo per half, USB-C |
-| Hub | Wired USB-C hub, central half |
-| Display | Status display, central half |
+| Hub | Wired USB-C hub, central half → 2026-10-01: separate dongle hub, Duo-style (`docs/decisions/2026-10-01-dongle-hub.md`) |
+| Display | Status display, central half → 2026-10-01: in the dongle |
 | Lighting | Diffused underglow through frosted acrylic |
 | PCB | White soldermask |
-| Knob | 1x encoder, central half, position TBD |
-| Tenting | Wanted; legs vs hinges TBD |
+| Knob | 1x encoder, position TBD (candidate: left macro column bottom) |
+| Tenting | Flip-out hinged legs (2026-10-01) |
 | Wrist rest | Wanted; design TBD |
 | Firmware | ZMK, nRF52840, ZMK Studio (2026-09-29) |
 | Budget | $450-500 self-build; validate end of Phase 3 |
@@ -48,11 +48,11 @@
 | # | Decision | Options | Lean | Status |
 |---|---|---|---|---|
 | 1 | Firmware | ZMK + Studio / QMK + VIA | ZMK | LOCKED 2026-09-29 |
-| 2 | Tenting | Fixed legs / Duo-style hinges | Fixed legs rev 1 | In scope 2026-09-29 |
-| 3 | Wired inter-half link | USB-C serial / pogo-magnetic | — | Open; affects both PCBs |
+| 2 | Tenting | Fixed legs / Duo-style hinges | Fixed legs rev 1 | LOCKED 2026-10-01: flip-out hinges |
+| 3 | Wired inter-half link | USB-C serial / pogo-magnetic / none | BLE only | LOCKED 2026-10-01: BLE only rev 1 |
 | 4 | Hub downstream ports | — | 2 | Open |
-| 5 | Display | OLED 128x64, content per §7 | Yes | Open |
-| 6 | Typing angle | 5-8° | 7° (Summit 7.5°) | Lock in Phase 2 CAD |
+| 5 | Display | OLED 128x64, content per §7 | Yes | LOCKED 2026-10-01: OLED in dongle; content open |
+| 6 | Typing angle | 5-8° | 7° (Summit 7.5°) | Lock in Phase 2 CAD; method LOCKED 2026-10-01: flat case + feet/weight |
 
 ZMK notes:
 - QMK/VIA rejected: no real wireless path
@@ -61,6 +61,8 @@ ZMK notes:
 - Combos, sticky keys, advanced behaviors: compile-time only
 
 ## 5. System architecture
+
+> 2026-10-01: superseded by the dongle hub (`docs/decisions/2026-10-01-dongle-hub.md`): the diagram below now lives in a separate always-plugged box; both halves = BLE peripherals (MCU + LiPo + charger + USB-C). Battery/LED limits below now apply to both halves.
 
 Central (right), wired mode:
 
@@ -85,7 +87,7 @@ Wireless: BLE split. Central ↔ host (multiple profiles). Peripheral ↔ centra
 MCU form factor:
 - Hub downstream must reach central MCU D+/D-
 - Modules (nice!nano class) don't break those out
-- Central: bare nRF52840 on PCB
+- Central: bare nRF52840 on PCB → proposed 2026-10-01: RF module with USB pins (E73 / MDBT50Q), see `docs/decisions/`
 - Peripheral: module OK
 - Verify Phase 3
 
@@ -110,7 +112,7 @@ Constraints:
 
 | Item | Spec |
 |---|---|
-| Location | Central half |
+| Location | Central half → dongle (2026-10-01) |
 | Tech | OLED 128x64, SSD1306 class, ZMK-supported |
 | Power | ~15-25 mA lit; sleep after ~30 s idle, wake on key/layer |
 | Battery % | Divider → ADC → LiPo curve lookup, ±5-10%; fuel gauge = rev 2 |
@@ -256,7 +258,7 @@ media/            sound clips, photos
 |---|---|---|
 | 1 | Firmware: ZMK + Studio? | LOCKED 2026-09-29 |
 | 2 | Tenting: fixed legs vs hinges? | Open |
-| 3 | Inter-half: cable vs pogo/magnetic? | Open |
+| 3 | Inter-half: cable vs pogo/magnetic? | LOCKED 2026-10-01: BLE only |
 | 4 | Hub: 2 downstream ports? | Open |
 | 5 | Display: OLED 128x64 + content list? | Open |
 | 6 | Typing angle 7°? | Open |

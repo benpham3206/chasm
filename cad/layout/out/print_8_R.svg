@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="213.5mm" height="147.6mm" viewBox="0 0 213.5 147.6">
+<text x="10" y="8" font-size="4" font-family="sans-serif">chasm R half, 8.0 deg, 1:1. Outer: keycap 18 mm; inner dashed: 14 mm switch hole</text>
+<rect x="96.432" y="20.525" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 105.432 29.525)"/>
+<rect x="98.432" y="22.525" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 105.432 29.525)"/>
+<text x="105.432" y="31.025" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 105.432 29.525)">-</text>
+<rect x="115.482" y="22.430" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 124.482 31.430)"/>
+<rect x="117.482" y="24.430" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 124.482 31.430)"/>
+<text x="124.482" y="32.930" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 124.482 31.430)">=</text>
+<rect x="134.532" y="22.430" width="37.050" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 153.057 31.430)"/>
+<rect x="146.057" y="24.430" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 153.057 31.430)"/>
+<text x="153.057" y="32.930" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 153.057 31.430)">Bksp</text>
+<rect x="91.289" y="40.527" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 100.289 49.527)"/>
+<rect x="93.289" y="42.527" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 100.289 49.527)"/>
+<text x="100.289" y="51.027" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 100.289 49.527)">P</text>
+<rect x="110.720" y="41.480" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 119.720 50.480)"/>
+<rect x="112.720" y="43.480" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 119.720 50.480)"/>
+<text x="119.720" y="51.980" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 119.720 50.480)">[</text>
+<rect x="129.770" y="41.480" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 138.770 50.480)"/>
+<rect x="131.770" y="43.480" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 138.770 50.480)"/>
+<text x="138.770" y="51.980" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 138.770 50.480)">]</text>
+<rect x="148.819" y="41.480" width="27.525" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 162.582 50.480)"/>
+<rect x="155.582" y="43.480" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 162.582 50.480)"/>
+<text x="162.582" y="51.980" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 162.582 50.480)">\</text>
+<rect x="100.242" y="60.530" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 109.242 69.530)"/>
+<rect x="102.242" y="62.530" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 109.242 69.530)"/>
+<text x="109.242" y="71.030" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 109.242 69.530)">;</text>
+<rect x="119.292" y="60.530" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 128.292 69.530)"/>
+<rect x="121.292" y="62.530" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 128.292 69.530)"/>
+<text x="128.292" y="71.030" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 128.292 69.530)">'</text>
+<rect x="138.342" y="60.530" width="41.813" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 159.248 69.530)"/>
+<rect x="152.248" y="62.530" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 159.248 69.530)"/>
+<text x="159.248" y="71.030" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 159.248 69.530)">Enter</text>
+<rect x="94.527" y="79.580" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 103.527 88.580)"/>
+<rect x="96.527" y="81.580" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 103.527 88.580)"/>
+<text x="103.527" y="90.080" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 103.527 88.580)">.</text>
+<rect x="113.577" y="79.580" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 122.577 88.580)"/>
+<rect x="115.577" y="81.580" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 122.577 88.580)"/>
+<text x="122.577" y="90.080" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 122.577 88.580)">/</text>
+<rect x="132.627" y="79.580" width="32.288" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 148.771 88.580)"/>
+<rect x="141.771" y="81.580" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 148.771 88.580)"/>
+<text x="148.771" y="90.080" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 148.771 88.580)">Shift</text>
+<rect x="165.965" y="79.580" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 174.965 88.580)"/>
+<rect x="167.965" y="81.580" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 174.965 88.580)"/>
+<text x="174.965" y="90.080" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 174.965 88.580)">Up</text>
+<rect x="146.915" y="98.630" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 155.915 107.630)"/>
+<rect x="148.915" y="100.630" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 155.915 107.630)"/>
+<text x="155.915" y="109.130" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 155.915 107.630)">Left</text>
+<rect x="165.965" y="98.630" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 174.965 107.630)"/>
+<rect x="167.965" y="100.630" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 174.965 107.630)"/>
+<text x="174.965" y="109.130" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 174.965 107.630)">Down</text>
+<rect x="185.015" y="98.630" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 194.015 107.630)"/>
+<rect x="187.015" y="100.630" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 194.015 107.630)"/>
+<text x="194.015" y="109.130" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 194.015 107.630)">Right</text>
+<rect x="18.539" y="30.443" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 27.539 39.443)"/>
+<rect x="20.539" y="32.443" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 27.539 39.443)"/>
+<text x="27.539" y="40.943" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 27.539 39.443)">7</text>
+<rect x="37.404" y="27.792" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 46.404 36.792)"/>
+<rect x="39.404" y="29.792" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 46.404 36.792)"/>
+<text x="46.404" y="38.292" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 46.404 36.792)">8</text>
+<rect x="56.269" y="25.141" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 65.269 34.141)"/>
+<rect x="58.269" y="27.141" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 65.269 34.141)"/>
+<text x="65.269" y="35.641" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 65.269 34.141)">9</text>
+<rect x="75.133" y="22.490" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 84.133 31.490)"/>
+<rect x="77.133" y="24.490" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 84.133 31.490)"/>
+<text x="84.133" y="32.990" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 84.133 31.490)">0</text>
+<rect x="11.758" y="50.634" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 20.758 59.634)"/>
+<rect x="13.758" y="52.634" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 20.758 59.634)"/>
+<text x="20.758" y="61.134" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 20.758 59.634)">Y</text>
+<rect x="30.623" y="47.982" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 39.623 56.982)"/>
+<rect x="32.623" y="49.982" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 39.623 56.982)"/>
+<text x="39.623" y="58.482" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 39.623 56.982)">U</text>
+<rect x="49.488" y="45.331" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 58.488 54.331)"/>
+<rect x="51.488" y="47.331" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 58.488 54.331)"/>
+<text x="58.488" y="55.831" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 58.488 54.331)">I</text>
+<rect x="68.352" y="42.680" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 77.352 51.680)"/>
+<rect x="70.352" y="44.680" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 77.352 51.680)"/>
+<text x="77.352" y="53.180" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 77.352 51.680)">O</text>
+<rect x="19.126" y="68.835" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 28.126 77.835)"/>
+<rect x="21.126" y="70.835" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 28.126 77.835)"/>
+<text x="28.126" y="79.335" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 28.126 77.835)">H</text>
+<rect x="37.990" y="66.184" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 46.990 75.184)"/>
+<rect x="39.990" y="68.184" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 46.990 75.184)"/>
+<text x="46.990" y="76.684" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 46.990 75.184)">J</text>
+<rect x="56.855" y="63.533" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 65.855 72.533)"/>
+<rect x="58.855" y="65.533" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 65.855 72.533)"/>
+<text x="65.855" y="74.033" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 65.855 72.533)">K</text>
+<rect x="75.720" y="60.882" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 84.720 69.882)"/>
+<rect x="77.720" y="62.882" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 84.720 69.882)"/>
+<text x="84.720" y="71.382" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 84.720 69.882)">L</text>
+<rect x="12.345" y="89.026" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 21.345 98.026)"/>
+<rect x="14.345" y="91.026" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 21.345 98.026)"/>
+<text x="21.345" y="99.526" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 21.345 98.026)">B</text>
+<rect x="31.209" y="86.374" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 40.209 95.374)"/>
+<rect x="33.209" y="88.374" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 40.209 95.374)"/>
+<text x="40.209" y="96.874" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 40.209 95.374)">N</text>
+<rect x="50.074" y="83.723" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 59.074 92.723)"/>
+<rect x="52.074" y="85.723" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 59.074 92.723)"/>
+<text x="59.074" y="94.223" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 59.074 92.723)">M</text>
+<rect x="68.939" y="81.072" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 77.939 90.072)"/>
+<rect x="70.939" y="83.072" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 77.939 90.072)"/>
+<text x="77.939" y="91.572" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 77.939 90.072)">,</text>
+<rect x="14.834" y="105.570" width="51.338" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 40.503 114.570)"/>
+<rect x="33.503" y="107.570" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 40.503 114.570)"/>
+<text x="40.503" y="116.070" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 40.503 114.570)">Space</text>
+<rect x="68.846" y="100.615" width="27.525" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(-8.000 82.609 109.615)"/>
+<rect x="75.609" y="102.615" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(-8.000 82.609 109.615)"/>
+<text x="82.609" y="111.115" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(-8.000 82.609 109.615)">Fn</text>
+<line x1="10" y1="141.64776876803617" x2="60" y2="141.64776876803617" stroke="black" stroke-width="0.5"/><text x="62" y="142.64776876803617" font-size="3.5" font-family="sans-serif">50 mm: measure to check print scale</text>
+</svg>

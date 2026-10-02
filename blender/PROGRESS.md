@@ -1,0 +1,3 @@
+- [2026-10-01 22:37] WORKING brief written by orchestrator | next: Devin builds scene + drafts | files: blender/BRIEF-render-v1.md
+- [2026-10-01 23:03] WORKING design.json (all numbers + assumptions) and outline.py (edge-list case outlines, self-check: min bezel 5.85 mm, L 186.6x119.5, R 210.9x121.0 mm) | next: build_scene.py + render_shots.py, drafts | files: blender/design.json, blender/outline.py, blender/tmp/outline_check.png
+- [2026-10-01 23:49] WORKING build_scene.py / render_shots.py / make_oled.py / contact_sheet.py in progress, first drafts rendering | next: review drafts, fix, contact sheet, checkpoint | files: blender/*.py, renders/stills/v1/draft/

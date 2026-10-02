@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 40" width="720" height="160">
+<rect width="100%" height="100%" fill="white"/>
+<g transform="translate(30.0,26)" fill="none" stroke="black" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M0,0 C2.00,-9.00 10.00,-12.00 16.00,-5.00"/>
+<path d="M0,0 C-2.00,-9.00 -10.00,-12.00 -16.00,-5.00"/>
+</g>
+<text x="30.0" y="37" font-size="3.2" text-anchor="middle" font-family="sans-serif">A arch</text>
+<g transform="translate(90.0,26)" fill="none" stroke="black" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M0,0 C3.00,-7.00 12.00,-10.00 20.00,-2.00"/>
+<path d="M0,0 C-3.00,-7.00 -12.00,-10.00 -20.00,-2.00"/>
+</g>
+<text x="90.0" y="37" font-size="3.2" text-anchor="middle" font-family="sans-serif">B swept</text>
+<g transform="translate(150.0,26)" fill="none" stroke="black" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M0,0 C1.00,-6.00 8.00,-10.00 12.00,-8.00"/>
+<path d="M0,0 C-1.00,-6.00 -8.00,-10.00 -12.00,-8.00"/>
+</g>
+<text x="150.0" y="37" font-size="3.2" text-anchor="middle" font-family="sans-serif">C gull</text>
+</svg>

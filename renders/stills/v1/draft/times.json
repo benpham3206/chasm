@@ -1,0 +1,62 @@
+{
+ "1_hero": {
+  "seconds": 4.5,
+  "samples": 48,
+  "res": [
+   480,
+   600
+  ],
+  "clipped_pct": 0.0,
+  "bg_mean_srgb": 241.6
+ },
+ "2_top": {
+  "seconds": 3.9,
+  "samples": 48,
+  "res": [
+   480,
+   600
+  ],
+  "clipped_pct": 0.08,
+  "bg_mean_srgb": 246.8
+ },
+ "3_plinth": {
+  "seconds": 3.4,
+  "samples": 48,
+  "res": [
+   480,
+   600
+  ],
+  "clipped_pct": 0.03,
+  "bg_mean_srgb": 198.7
+ },
+ "4_gull": {
+  "seconds": 9.4,
+  "samples": 48,
+  "res": [
+   480,
+   600
+  ],
+  "clipped_pct": 0.0,
+  "bg_mean_srgb": 225.2
+ },
+ "5_underside": {
+  "seconds": 4.2,
+  "samples": 48,
+  "res": [
+   480,
+   600
+  ],
+  "clipped_pct": 0.0,
+  "bg_mean_srgb": 246.7
+ },
+ "6_hub": {
+  "seconds": 6.0,
+  "samples": 48,
+  "res": [
+   480,
+   600
+  ],
+  "clipped_pct": 0.0,
+  "bg_mean_srgb": 225.9
+ }
+}

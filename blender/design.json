@@ -1,0 +1,982 @@
+{
+ "_doc": "chasm v1 shape study. All lengths mm, angles deg, unless the key says otherwise. Frame per half = keys_8.json frame (x right, y back, origin key-area bbox centre); z up, z=0 = case bottom face (before feet). Blender scene units: metres (mm * 0.001).",
+ "inputs": {
+  "keys": "cad/layout/out/keys_8.json",
+  "gull_variant": "C gull",
+  "gull_c1": [
+   1,
+   6
+  ],
+  "gull_c2": [
+   8,
+   10
+  ],
+  "gull_tip": [
+   12,
+   8
+  ],
+  "_note": "gull = cubic Bezier from vertex (0,0) via c1, c2 to tip, right wing, y up (brand/gull_logo.py); left wing = mirror in x"
+ },
+ "case": {
+  "height_mm": 24.0,
+  "_height": "flat case, bottom face to top face of the frost frame",
+  "bottom_t_mm": 3.0,
+  "_bottom_t": "clear polished acrylic bottom, z 0..3",
+  "wall_t_mm": 4.0,
+  "_wall_t": "frost wall thickness, outline inset -> cavity",
+  "lip_bottom_z_mm": 17.5,
+  "_lip_bottom_z": "underside of the top frame lip (cavity ceiling); plate top 16.1 + 1.4 gasket gap",
+  "bezel_min_mm": 5.5,
+  "_bezel_min": "self-check: min distance key pitch box -> outline (corner arcs cut the 6/7 mm sides to ~5.8)",
+  "opening_clearance_mm": 1.0,
+  "_opening_clearance": "top opening = outline edges pulled back to (bezel - clearance); i.e. ~1 mm around the pitch boxes",
+  "opening_inset_mm": 5.0,
+  "_opening_inset": "SUPERSEDED for the top frame by the stagger-hugging opening (blender/out/opening.json from outline.opening); kept only as a fallback",
+  "opening_r_min_mm": 1.0,
+  "_opening_r_min": "min corner radius of the opening (CNC inner radius)",
+  "edge_fillet_mm": 1.0,
+  "_edge_fillet": "round on every outer/opening edge of the frost shell",
+  "outline": {
+   "_doc": "edges CCW. n_deg = outward normal; keys = which keys the line must clear (all | straight | angled | id list | not:id list); bezel = gap from the furthest key pitch box; r = fillet at the END of this edge (vertex to next edge)",
+   "L": [
+    {
+     "name": "outer",
+     "n_deg": 180,
+     "keys": "all",
+     "bezel": 7.0,
+     "r": 7.0
+    },
+    {
+     "name": "front_straight",
+     "n_deg": 270,
+     "keys": "straight",
+     "bezel": 6.0,
+     "r": 40.0
+    },
+    {
+     "name": "front_angled",
+     "n_deg": 262,
+     "keys": "angled",
+     "bezel": 6.0,
+     "r": 10.0
+    },
+    {
+     "name": "inner_chamfer",
+     "n_deg": 322,
+     "keys": "all",
+     "bezel": 7.0,
+     "r": 10.0
+    },
+    {
+     "name": "inner",
+     "n_deg": 356,
+     "keys": "all",
+     "bezel": 7.0,
+     "r": 7.0
+    },
+    {
+     "name": "back_angled",
+     "n_deg": 82,
+     "keys": "all",
+     "bezel": 6.0,
+     "r": 60.0
+    },
+    {
+     "name": "back_straight",
+     "n_deg": 90,
+     "keys": "straight",
+     "bezel": 6.0,
+     "r": 7.0
+    }
+   ],
+   "R": [
+    {
+     "name": "inner",
+     "n_deg": 184,
+     "keys": "all",
+     "bezel": 7.0,
+     "r": 7.0
+    },
+    {
+     "name": "front_angled",
+     "n_deg": 278,
+     "keys": "angled",
+     "bezel": 6.0,
+     "r": 40.0
+    },
+    {
+     "name": "front_straight",
+     "n_deg": 270,
+     "keys": "straight",
+     "bezel": 6.0,
+     "r": 7.0
+    },
+    {
+     "name": "outer_arrows",
+     "n_deg": 0,
+     "keys": "all",
+     "bezel": 7.0,
+     "r": 7.0
+    },
+    {
+     "name": "shoulder",
+     "n_deg": 40,
+     "keys": "R16",
+     "bezel": 7.0,
+     "r": 16.0
+    },
+    {
+     "name": "outer_upper",
+     "n_deg": 0,
+     "keys": "not:R14,R15,R16",
+     "bezel": 7.0,
+     "r": 7.0
+    },
+    {
+     "name": "back_straight",
+     "n_deg": 90,
+     "keys": "straight",
+     "bezel": 6.0,
+     "r": 60.0
+    },
+    {
+     "name": "back_angled",
+     "n_deg": 98,
+     "keys": "all",
+     "bezel": 6.0,
+     "r": 7.0
+    }
+   ]
+  },
+  "opening_close_r_mm": 7.5,
+  "_opening_close_r": "morphological closing radius of the opening: fills wedges/gaps between key blocks narrower than 2r; keeps the row stagger steps (Duo frame hugs the keys)",
+  "opening_tol_mm": 0.02,
+  "_opening_tol": "polyline simplification tolerance of the raster-derived opening",
+  "opening_frame_min_mm": 4.5,
+  "_opening_frame_min": "self-check: min frost frame width between outline and opening"
+ },
+ "stack": {
+  "_doc": "z of layer bottoms/tops in the half frame (z=0 case bottom face, before feet)",
+  "bottom_z": [
+   0.0,
+   3.0
+  ],
+  "_bottom": "clear acrylic bottom",
+  "weight_z": [
+   3.0,
+   7.0
+  ],
+  "_weight": "polished stainless slab sits on the bottom",
+  "battery_z": [
+   3.0,
+   8.0
+  ],
+  "_battery": "LiPo pouch beside the weight (stepped cavity, cad-gates)",
+  "rf_module_z": [
+   7.5,
+   9.5
+  ],
+  "_rf_module": "RF module on the PCB underside, can faces down (visible through clear bottom)",
+  "pcb_z": [
+   9.5,
+   11.1
+  ],
+  "_pcb": "1.6 mm white soldermask; 9.5 leaves ~2.5 mm for hot-swap sockets + foam above the weight",
+  "plate_z": [
+   14.6,
+   16.1
+  ],
+  "_plate": "PP 1.5 mm; plate top - PCB top = 5.0 (MX)",
+  "cap_bottom_z": 22.1,
+  "_cap_bottom": "keycap skirt bottom = plate top + 6.0 (assumed seat height)"
+ },
+ "plate": {
+  "inset_mm": 4.5,
+  "_inset": "plate outline = case outline inset (wall_t + 0.5)",
+  "switch_hole_mm": 14.0,
+  "_switch_hole": "MX cutout, boolean-cut",
+  "material": "pp_milky"
+ },
+ "pcb": {
+  "inset_mm": 5.5,
+  "_inset": "PCB outline = case outline inset",
+  "material": "pcb_white"
+ },
+ "switch": {
+  "bottom_w_mm": 14.0,
+  "bottom_h_mm": 5.0,
+  "_bottom": "bottom housing below plate top (through the 14 mm cutout), sits on the PCB",
+  "top_base_mm": 15.6,
+  "top_top_mm": [
+   11.0,
+   12.0
+  ],
+  "top_h_mm": 6.6,
+  "_top": "top housing above plate: base square, top x/y, height (cad-gates ~6.6)",
+  "stem_mm": [
+   4.1,
+   4.1,
+   3.6
+  ],
+  "_stem": "stem cross bounding box above the top housing (x, y, h)",
+  "material_housing": "switch_clear",
+  "material_stem": "pom_white"
+ },
+ "stab": {
+  "spacing_mm": {
+   "2": 23.8,
+   "2.25": 23.8,
+   "2.75": 38.1
+  },
+  "_spacing": "stab stem spacing per cap width (Cherry std)",
+  "housing_mm": [
+   6.8,
+   12.0,
+   6.0
+  ],
+  "_housing": "plate-stab housing stand-in (x, y, z above plate top)",
+  "wire_d_mm": 1.4,
+  "wire_y_mm": -5.5,
+  "_wire": "wire just above the plate top, offset to the front",
+  "material": "switch_clear",
+  "wire_material": "stainless_polished"
+ },
+ "keycap": {
+  "base_1u_mm": 18.0,
+  "_base": "1u base; wider caps = w_u*19.05 - 1.05",
+  "top_shrink_mm": [
+   5.3,
+   3.6
+  ],
+  "_top_shrink": "base minus top in x / y (12.7 x 14.4 top on 1u)",
+  "top_back_shift_mm": 0.5,
+  "_top_back_shift": "top surface centre shifted toward the back",
+  "dish_mm": 0.5,
+  "_dish": "cylindrical dish depth (cylinder axis along y)",
+  "wall_mm": 1.3,
+  "_wall": "shell thickness (hollow cap, X-Ray look shows the switch)",
+  "r_base_mm": 0.8,
+  "r_top_mm": 1.6,
+  "_r": "plan corner radii base/top",
+  "rows": {
+   "R1": {
+    "h_mm": 9.4,
+    "tilt_deg": 8.0,
+    "labels": [
+     "M1",
+     "`",
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8",
+     "9",
+     "0",
+     "-",
+     "=",
+     "Bksp"
+    ]
+   },
+   "R2": {
+    "h_mm": 7.9,
+    "tilt_deg": 4.0,
+    "labels": [
+     "M2",
+     "Tab",
+     "Q",
+     "W",
+     "E",
+     "R",
+     "T",
+     "Y",
+     "U",
+     "I",
+     "O",
+     "P",
+     "[",
+     "]",
+     "\\"
+    ]
+   },
+   "R3": {
+    "h_mm": 7.6,
+    "tilt_deg": 0.0,
+    "labels": [
+     "M3",
+     "Caps",
+     "A",
+     "S",
+     "D",
+     "F",
+     "G",
+     "H",
+     "J",
+     "K",
+     "L",
+     ";",
+     "'",
+     "Enter"
+    ]
+   },
+   "R4": {
+    "h_mm": 8.1,
+    "tilt_deg": -5.0,
+    "labels": "rest"
+   },
+   "_doc": "h = height at top centre above the cap bottom; tilt = top normal tilted toward the user (-y); R4 = every other key"
+  },
+  "legend": {
+   "font": "C:/Windows/Fonts/seguisb.ttf",
+   "font_symbols": "C:/Windows/Fonts/seguisym.ttf",
+   "alpha_size_mm": 3.6,
+   "mod_size_mm": 2.2,
+   "_size": "Blender font size",
+   "margin_mm": [
+    2.6,
+    2.4
+   ],
+   "_margin": "from the top-surface edge: x, y (top-left for alphas, bottom-left for modifiers)",
+   "depth_below_top_mm": 0.08,
+   "thickness_mm": 0.7,
+   "_depth": "double-shot: white glyph volume starts this far under the dished top; 0.15->0.08 so it reads through the cap top",
+   "text": {
+    "Bksp": "Backspace",
+    "Caps": "Caps Lock",
+    "Up": "↑",
+    "Down": "↓",
+    "Left": "←",
+    "Right": "→",
+    "Space": ""
+   },
+   "_style": "alpha style = single char or M1-M4 (top-left); arrows centred; other multi-char labels = modifier (bottom-left)"
+  },
+  "material": "abs_clear_frosted",
+  "legend_material": "legend_white"
+ },
+ "internals": {
+  "_doc": "positions in the half frame, mm; rot about z, deg",
+  "rf_module": {
+   "size_mm": [
+    13.0,
+    18.0
+   ],
+   "L": {
+    "xy": [
+     62.0,
+     32.0
+    ],
+    "rot": -4.0
+   },
+   "R": {
+    "xy": [
+     -74.0,
+     32.0
+    ],
+    "rot": 4.0
+   },
+   "antenna_end": "+y",
+   "antenna_len_mm": 5.0,
+   "_note": "E73/MDBT50Q class: metal can + bare antenna strip at the +y end; weight keeps >= 10 mm away. R moved (-78,34)->(-74,32): authored pos violated the cavity-inset-1 assert by 0.64 mm at the antenna corner",
+   "material": "rf_can"
+  },
+  "battery": {
+   "size_mm": [
+    50.0,
+    34.0
+   ],
+   "r_mm": 2.0,
+   "L": {
+    "xy": [
+     -50.0,
+     32.0
+    ],
+    "rot": 0.0
+   },
+   "R": {
+    "xy": [
+     42.0,
+     34.0
+    ],
+    "rot": 0.0
+   },
+   "material": "lipo_silver"
+  },
+  "weight": {
+   "_doc": "outline = case outline edges with every back edge (n_deg 60..120) replaced by one fixed line y = back_y, then inset",
+   "inset_mm": 12.0,
+   "back_y_mm": 10.0,
+   "r_min_mm": 6.0,
+   "material": "stainless_polished"
+  },
+  "usb_c": {
+   "opening_mm": [
+    9.2,
+    3.5
+   ],
+   "r_mm": 1.6,
+   "shell_mm": [
+    8.94,
+    3.26
+   ],
+   "recess_mm": 1.0,
+   "z_mm": 10.3,
+   "from_back_mm": 20.0,
+   "_from_back": "port centre measured along the inner edge from its back end",
+   "material_shell": "stainless_polished"
+  }
+ },
+ "logo": {
+  "wing_span_mm": 10.0,
+  "_wing_span": "vertex to tip in x per wing (C curve is 12 wide -> scale 10/12)",
+  "stroke_mm": 1.2,
+  "inlay_depth_mm": 0.6,
+  "_inlay": "stainless strip, top flush with the frame top, round ends",
+  "vertex_inset_mm": 1.0,
+  "_vertex_inset": "vertex sits this far inside the inner edge (clears the 1 mm edge fillet); 2.0 -> 1.0 so the metal tips nearly meet in together pose",
+  "vertex_offset_mm": -3.0,
+  "_vertex_offset": "shift of the vertex along the inner edge, + = toward back; searched -8..+8 in 0.5 mm steps vs the stagger opening -> -3.0 gives L 1.89 / R 1.06 mm clearance at span 10 (blender/tmp/gull_search.json)",
+  "anchor": {
+   "L": "L26",
+   "R": "R25"
+  },
+  "_anchor": "G / H: vertex = anchor key centre projected onto the inner edge line",
+  "_axis": "gull y axis runs along the inner edge direction, wing extends away from the edge into the bezel",
+  "min_clear_to_opening_mm": 1.0,
+  "material": "stainless_polished"
+ },
+ "feet": {
+  "typing_angle_deg": 6.0,
+  "_typing_angle": "placeholder; tilt about the front pads",
+  "front_pad": {
+   "d_mm": 10.0,
+   "h_mm": 1.0,
+   "inset_mm": 12.0,
+   "_note": "2 per half (front-outer, front-inner), rubber, centre inset from the outline",
+   "material": "rubber_clear"
+  },
+  "rear": {
+   "size_mm": [
+    28.0,
+    8.0
+   ],
+   "inset_mm": 10.0,
+   "_note": "2 slim bars per half (back-outer, back-inner); height computed so the case sits at typing_angle with bar bottoms flat on the desk (bottom cut at the angle); frost acrylic",
+   "material": "frost_acrylic"
+  }
+ },
+ "tent": {
+  "angle_deg": 12.0,
+  "_angle": "roll about the line through the inner front pad + inner rear foot contacts, applied on top of the typing pose",
+  "legs_per_half": 1,
+  "leg_w_mm": 50.0,
+  "leg_t_mm": 3.0,
+  "hinge_inset_mm": 9.0,
+  "_hinge_inset": "hinge axis parallel to the outer edge, this far inside it, at z=0",
+  "hinge_pos": 0.5,
+  "_hinge_pos": "leg centre as a fraction along the outer edge (0 = front, 1 = back)",
+  "deploy_deg": 90.0,
+  "_deploy": "leg angle to the case bottom when deployed; stowed = 0 (flat in a bottom pocket, folding inward)",
+  "_leg_len": "computed so the leg tip touches the desk in the tent pose; tip edge cut parallel to the desk",
+  "material": "stainless_polished"
+ },
+ "hub": {
+  "size_mm": [
+   62.0,
+   42.0,
+   16.0
+  ],
+  "_size": "x width, y depth (+y = back), z height",
+  "r_plan_mm": 7.0,
+  "edge_fillet_mm": 1.0,
+  "bottom_t_mm": 2.5,
+  "wall_t_mm": 3.0,
+  "lip_t_mm": 3.0,
+  "pcb_z": [
+   4.0,
+   5.6
+  ],
+  "rf_module_xy": [
+   14.0,
+   8.0
+  ],
+  "_rf": "on the PCB top, can up",
+  "knob": {
+   "xy": [
+    -15.0,
+    0.0
+   ],
+   "d_mm": 18.0,
+   "h_mm": 10.0,
+   "knurl_count": 60,
+   "knurl_depth_mm": 0.35,
+   "top_chamfer_mm": 0.8,
+   "gap_mm": 0.6,
+   "_gap": "knob bottom floats this far above the top",
+   "material": "stainless_polished"
+  },
+  "oled": {
+   "window_xy": [
+    13.0,
+    4.0
+   ],
+   "window_mm": [
+    27.0,
+    15.0
+   ],
+   "active_mm": [
+    21.74,
+    10.86
+   ],
+   "_active": "0.96in 128x64 SSD1306 active area",
+   "texture": "blender/tex/oled_status.png",
+   "emission": 6.0,
+   "window_material": "black_glass"
+  },
+  "gull": {
+   "xy": [
+    13.0,
+    -11.5
+   ],
+   "wing_span_mm": 7.0,
+   "stroke_mm": 1.0,
+   "_note": "full gull, both wings, vertex at xy"
+  },
+  "usb_c": {
+   "x_mm": [
+    -16.0,
+    0.0,
+    16.0
+   ],
+   "roles": [
+    "down",
+    "down",
+    "up"
+   ],
+   "z_mm": 6.4,
+   "_note": "back face (+y); same opening/shell as the halves"
+  }
+ },
+ "poses": {
+  "_doc": "world placement; each half is first rotated so its inner edge is parallel to world y (align), then the pose applies",
+  "flat": {
+   "gap_mm": 75.0,
+   "_gap": "inner-edge to inner-edge distance at the logo vertex",
+   "yaw_deg": 5.0,
+   "_yaw": "extra inward yaw: L rotated -yaw, R +yaw (back ends lean in)",
+   "hub_xy": [
+    0.0,
+    105.0
+   ],
+   "hub_yaw_deg": 0.0
+  },
+  "together": {
+   "seam_mm": 0.2,
+   "_seam": "inner edges coincident with this gap, logo vertices aligned",
+   "hub_xy": [
+    0.0,
+    115.0
+   ]
+  },
+  "tented": {
+   "half": "L",
+   "_half": "tented half for shot 3; the other half stays in the flat pose",
+   "gap_mm": 90.0,
+   "hub_xy": [
+    0.0,
+    105.0
+   ]
+  },
+  "underside": {
+   "half": "L",
+   "_half": "half flipped onto its cap tops for shot 5"
+  }
+ },
+ "materials": {
+  "_doc": "look parameters (Principled BSDF inputs unless noted); tune in look-dev, keep the tuned values here",
+  "frost_acrylic": {
+   "base": [
+    0.88,
+    0.89,
+    0.9
+   ],
+   "transmission": 0.9,
+   "roughness": 0.42,
+   "ior": 1.49,
+   "volume_scatter_density_per_m": 10.0,
+   "_note": "full frost; vol scatter 10 gives the thickness glow; A/B look test blender/tmp/look_frost_*.png (B chosen)"
+  },
+  "clear_acrylic": {
+   "base": [
+    0.98,
+    0.98,
+    0.98
+   ],
+   "transmission": 1.0,
+   "roughness": 0.02,
+   "ior": 1.49
+  },
+  "abs_clear_frosted": {
+   "base": [
+    0.82,
+    0.84,
+    0.87
+   ],
+   "transmission": 0.95,
+   "roughness": 0.18,
+   "ior": 1.53,
+   "_note": "X-Ray frosted clear; look test blender/tmp/look_caps_*.png (C chosen)"
+  },
+  "legend_white": {
+   "base": [
+    0.96,
+    0.96,
+    0.95
+   ],
+   "roughness": 0.35,
+   "subsurface": 0.3,
+   "_note": "opaque white glyph; slightly glossier than cap frost for relief contrast"
+  },
+  "pp_milky": {
+   "base": [
+    0.9,
+    0.9,
+    0.88
+   ],
+   "transmission": 0.6,
+   "roughness": 0.45,
+   "subsurface": 0.5
+  },
+  "pcb_white": {
+   "base": [
+    0.86,
+    0.86,
+    0.84
+   ],
+   "roughness": 0.35,
+   "coat": 0.5
+  },
+  "switch_clear": {
+   "base": [
+    0.95,
+    0.95,
+    0.95
+   ],
+   "transmission": 1.0,
+   "roughness": 0.08,
+   "ior": 1.58
+  },
+  "pom_white": {
+   "base": [
+    0.88,
+    0.88,
+    0.86
+   ],
+   "roughness": 0.35,
+   "subsurface": 0.2
+  },
+  "rf_can": {
+   "base": [
+    0.75,
+    0.75,
+    0.74
+   ],
+   "metallic": 1.0,
+   "roughness": 0.3
+  },
+  "lipo_silver": {
+   "base": [
+    0.78,
+    0.78,
+    0.8
+   ],
+   "metallic": 1.0,
+   "roughness": 0.35,
+   "_note": "pouch: soft noise bump"
+  },
+  "stainless_polished": {
+   "base": [
+    0.62,
+    0.62,
+    0.61
+   ],
+   "metallic": 1.0,
+   "roughness": 0.07
+  },
+  "black_glass": {
+   "base": [
+    0.01,
+    0.01,
+    0.012
+   ],
+   "roughness": 0.03,
+   "coat": 1.0,
+   "transmission": 0.9,
+   "ior": 1.5,
+   "_transmission": "smoked window: transmits the emissive OLED behind it"
+  },
+  "antenna_fr4": {
+   "base": [
+    0.05,
+    0.12,
+    0.08
+   ],
+   "roughness": 0.5,
+   "_note": "RF module antenna strip (dark green FR4)"
+  },
+  "rubber_clear": {
+   "base": [
+    0.9,
+    0.9,
+    0.9
+   ],
+   "transmission": 0.8,
+   "roughness": 0.6
+  },
+  "studio_seamless": {
+   "base": [
+    0.62,
+    0.64,
+    0.67
+   ],
+   "roughness": 0.85,
+   "_note": "light grey, slightly cool"
+  },
+  "studio_plinth": {
+   "base": [
+    0.8,
+    0.81,
+    0.82
+   ],
+   "roughness": 0.7
+  }
+ },
+ "render": {
+  "engine": "CYCLES",
+  "device": "CUDA",
+  "final_px": [
+   1600,
+   2000
+  ],
+  "draft_pct": 30,
+  "draft_samples": 48,
+  "final_samples": 512,
+  "denoise": "OPENIMAGEDENOISE",
+  "view_transform": "AgX",
+  "look": "AgX - Base Contrast",
+  "exposure": -0.4,
+  "saturation": 0.9,
+  "black_lift": 0.02,
+  "_grade": "muted: saturation multiplier + slight black lift in the compositor",
+  "bounces": {
+   "max": 32,
+   "transmission": 24,
+   "volume": 0,
+   "diffuse": 4,
+   "glossy": 6,
+   "transparent": 24
+  },
+  "blur_glossy": 1.0,
+  "_blur_glossy": "clamps glossy fireflies from the clear cap/stack light paths"
+ },
+ "studio": {
+  "seamless_size_m": [
+   12.0,
+   4.0
+  ],
+  "seamless_curve_r_m": 0.6,
+  "_seamless": "floor + curved backdrop",
+  "plinth_mm": [
+   420.0,
+   260.0,
+   70.0
+  ],
+  "_plinth": "low step for eye-level shot 3",
+  "key_light": {
+   "size_m": [
+    1.6,
+    1.2
+   ],
+   "power_w": 450.0,
+   "_note": "big softbox front-left high (window feel); 900 was blowing out the frost at draft"
+  },
+  "fill": {
+   "kind": "white bounce card right",
+   "size_m": [
+    1.2,
+    1.0
+   ]
+  },
+  "world_strength": 0.15,
+  "backdrop_light": {
+   "size_m": [
+    1.4,
+    1.4
+   ],
+   "power_w": 120.0,
+   "_note": "faint wash aimed high on the seamless wall; just lifts the backdrop edge, does not flatten it"
+  },
+  "neg_fill": {
+   "size_m": [
+    1.6,
+    1.2
+   ],
+   "colour": 0.02,
+   "pos": [
+    1.5,
+    0.3,
+    0.8
+   ],
+   "_note": "dark card opposite the key: gives the frost walls/caps tonal separation; invisible to camera"
+  },
+  "grad_card": {
+   "size_m": [
+    2.0,
+    1.2
+   ],
+   "emission_w": 4.0,
+   "pos": [
+    0.4,
+    -1.3,
+    2.1
+   ],
+   "_note": "emission gradient plane high/front-left: polished metal (knob, weight, gull) reflects a gradient instead of void; invisible to camera"
+  },
+  "_world": "faint grey ambient = lifted shadows"
+ },
+ "shots": {
+  "_doc": "per-shot camera + pose. cam/target in mm, world space (target may be an object name). support: 'desk' (z=0) or 'plinth' (z=plinth top). Numbers tuned against draft renders.",
+  "1_hero": {
+   "pose": "flat",
+   "lens_mm": 60.0,
+   "fstop": 5.6,
+   "cam": [
+    -730.0,
+    -860.0,
+    620.0
+   ],
+   "target": [
+    0.0,
+    10.0,
+    10.0
+   ],
+   "support": "desk"
+  },
+  "2_top": {
+   "pose": "flat",
+   "ortho_scale_mm": 600.0,
+   "cam": [
+    0.0,
+    30.0,
+    900.0
+   ],
+   "target": [
+    0.0,
+    30.0,
+    0.0
+   ],
+   "support": "desk"
+  },
+  "3_plinth": {
+   "pose": "tented",
+   "lens_mm": 80.0,
+   "fstop": 6.3,
+   "cam": [
+    -800.0,
+    -310.0,
+    135.0
+   ],
+   "target": [
+    -95.0,
+    25.0,
+    72.0
+   ],
+   "support": "plinth",
+   "plinth_xy": [
+    -100.0,
+    30.0
+   ],
+   "hide": [
+    "R"
+   ],
+   "_note": "cam z near plinth top (70 mm) -> plinth front edge reads as the horizon line"
+  },
+  "4_gull": {
+   "pose": "together",
+   "lens_mm": 100.0,
+   "fstop": 4.0,
+   "cam": [
+    -30.0,
+    -100.0,
+    204.0
+   ],
+   "target": [
+    0.0,
+    0.0,
+    24.0
+   ],
+   "support": "desk",
+   "focus_mm": [
+    0.0,
+    0.0,
+    24.0
+   ]
+  },
+  "5_underside": {
+   "pose": "underside",
+   "lens_mm": 60.0,
+   "fstop": 4.0,
+   "cam": [
+    -350.0,
+    -260.0,
+    420.0
+   ],
+   "target": [
+    -128.0,
+    0.0,
+    15.0
+   ],
+   "support": "desk",
+   "hide": [
+    "R"
+   ]
+  },
+  "6_hub": {
+   "pose": "flat",
+   "lens_mm": 100.0,
+   "fstop": 4.0,
+   "cam": [
+    111.0,
+    238.0,
+    114.0
+   ],
+   "target": [
+    -15.0,
+    105.0,
+    25.0
+   ],
+   "support": "desk",
+   "focus_mm": [
+    -15.0,
+    105.0,
+    32.0
+   ]
+  }
+ },
+ "assumptions": [
+  "Corner radii 7 mm (outer), 40 mm concave front kink, 60 mm gentle back kink, 16 mm arrow-shoulder concave: shape-study values, not engineering.",
+  "L half bottom-left (below M4, left of Ctrl): outline kept square (Duo-like slab), the opening follows the same edges so the plate shows there.",
+  "R half arrow cluster: outer edge steps out via a 40 deg shoulder that touches the Right-arrow pitch box corner.",
+  "L inner bottom corner chamfered (322 deg edge) to follow Space/B instead of leaving a wide pad.",
+  "Keycap seat height = plate top + 6.0 mm; Cherry row heights R1 9.4 / R2 7.9 / R3 7.6 / R4 8.1 mm and top tilts 8/4/0/-5 deg are approximations (no datasheet).",
+  "Single legend per key (no shifted symbols); Segoe UI Semibold stands in for the X-Ray kit font.",
+  "Switch plate holes boolean-cut; no hot-swap sockets, diodes or wiring modelled.",
+  "RF module 13 x 18 mm near the inner back corner on the PCB underside; antenna at the +y end.",
+  "Weight = outline inset 12 mm with its back edge at y = 10 mm (clears battery and RF module); 4 mm thick.",
+  "Rear feet height derived from the typing angle; tent legs: 1 per half, 50 mm wide, stainless, length derived from the 12 deg tent.",
+  "Tent pose ignores rubber compression; roll axis = line through the inner front pad + inner rear foot contacts.",
+  "Hub internals beyond PCB + RF module + OLED + encoder body are not modelled."
+ ]
+}

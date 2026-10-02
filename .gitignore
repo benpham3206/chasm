@@ -1,0 +1,11 @@
+# generated / scratch
+__pycache__/
+blender/tmp/
+blender/out/
+*.blend
+*.blend1
+*.log
+blender/devin-session-*.md
+# third-party photos (copyright) and personal photos
+ref/style/alexotos/
+ref/tenting/*.jpg
