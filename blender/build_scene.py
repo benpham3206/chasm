@@ -1,7 +1,7 @@
-"""Build the chasm v1 scene from design.json + keys_8.json.
+"""Build the chasm rev2 scene from design.json + keys_8.json.
 
     blender -b --factory-startup --python-exit-code 1 --python blender/build_scene.py -- \
-        [--pose flat|tented|together|underside] [--save blender/chasm_v1.blend]
+        [--pose flat|tented|together|underside] [--save blender/chasm_v2.blend]
 
 Importable: build(design) -> ctx; set_pose(name, support_z_mm=0).
 Geometry is generated in mm in the half frame (x right, y back, z up, z=0 = case
@@ -15,6 +15,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 import outline as ol
+import rev2_keycaps
+import rev2_case
 
 MM = 0.001
 RAD = math.radians
@@ -82,12 +84,35 @@ def eval_apply(obj):
 
 
 def bool_diff(obj, cutter):
+    # XZ-plane rings (port cutters) come in with flipped caps -> recalc first,
+    # else EXACT leaves the wall face behind and the port reads as a pill (H1)
+    recalc_normals(cutter.data)
     m = obj.modifiers.new("cut", 'BOOLEAN')
     m.operation = 'DIFFERENCE'
     m.solver = 'EXACT'
     m.object = cutter
     eval_apply(obj)
     bpy.data.objects.remove(cutter)
+
+
+def stadium_ring(name, o_pts, i_pts, d0, d1, to_v, coll, mat):
+    """Hollow open stadium tube (USB-C receptacle): outer+inner rings at two
+    depths, no end caps - the port opening must pass through to the dark
+    interior, not stop on a solid front face (H7)."""
+    n = len(o_pts)
+    assert len(i_pts) == n
+    verts = ([to_v(*p, d0) for p in o_pts] + [to_v(*p, d0) for p in i_pts] +
+             [to_v(*p, d1) for p in o_pts] + [to_v(*p, d1) for p in i_pts])
+    faces = []
+    for i in range(n):
+        j = (i + 1) % n
+        faces.append((i, j, n + j, n + i))
+        faces.append((3 * n + i, 3 * n + j, 2 * n + j, 2 * n + i))
+        faces.append((j, i, 2 * n + i, 2 * n + j))
+        faces.append((n + i, n + j, 3 * n + j, 3 * n + i))
+    ob = new_obj(name, verts, faces, coll, mat)
+    recalc_normals(ob.data)
+    return ob
 
 
 def bevel(obj, width_mm, segments=3):
@@ -464,7 +489,11 @@ def pose_flat_M(g, D, gap_mm, yaw_deg, level=False):
         s = 1 if lift(1) > lift(-1) else -1
         M = (Matrix.Translation(aw_a) @ Matrix.Rotation(s * alpha, 4, adir)
              @ Matrix.Translation(-aw_a)) @ M
-        return Matrix.Translation((0, 0, pad_h)) @ M
+        M = Matrix.Translation((0, 0, pad_h)) @ M
+        if D["case"].get("lower_base"):
+            front_z = min((M @ Vector((x,y,D["case"]["height_mm"]))).z for x,y in g["outline"])
+            M = Matrix.Translation((0,0,D["case"]["height_mm"]-front_z)) @ M
+        return M
     return M
 
 
@@ -481,12 +510,14 @@ def set_pose(name, support_z_mm=0.0, ctx=None):
     beta = RAD(D["tent"]["angle_deg"])
     for half in "LR":
         g = geom[half]
+        for nm, base in g["basis0"].items():
+            bpy.data.objects[nm].matrix_basis = base.copy()
         deployed = False
         for nm, (st, dep) in g["link_bases"].items():
             bpy.data.objects[nm].matrix_basis = st
         for nm, (st, dep) in g["u_bases"].items():
             bpy.data.objects[nm].matrix_basis = st
-        if name == "flat":
+        if name in ("flat", "plinth"):
             M = pose_flat_M(g, D, P["flat"]["gap_mm"], P["flat"]["yaw_deg"])
         elif name == "together":
             M = pose_flat_M(g, D, P["together"]["seam_mm"], 0.0)
@@ -533,6 +564,13 @@ def set_pose(name, support_z_mm=0.0, ctx=None):
                 ob = bpy.data.objects[nm]
                 ob.matrix_basis = Matrix.Translation(
                     (0, 0, off * MM)) @ g["basis0"][nm]
+            for nm, detail in D['explode'].get('inspect_caps',{}).items():
+                if not nm.startswith(half+'_'): continue
+                ob=bpy.data.objects[nm]
+                ob.location += Vector(detail['offset_mm'])*MM
+                ob.rotation_euler.x=RAD(detail['tilt_x_deg'])
+    for nm, base in geom["hub_basis0"].items():
+        bpy.data.objects[nm].matrix_basis = base.copy()
     if name == "exploded":
         for nm, off in geom["hub_explode_off"].items():
             ob = bpy.data.objects[nm]
@@ -555,10 +593,32 @@ def build(design):
     kv = ol.knob_virtual_key(design, keys)  # keyboard knob keepout: outlines grow around it
     if kv:
         keys["keys"].append(kv)
+    lv = ol.logo_virtual_key(design, keys)
+    if lv:
+        keys["keys"].append(lv)
     unit = keys["unit_mm"]
     D = design
     derived = {"unit_mm": unit}
     mats = build_materials(D["materials"])
+    frost=mats[D["keycap"]["material"]]
+    nt=frost.node_tree
+    grain=nt.nodes.new('ShaderNodeTexNoise')
+    grain.inputs['Scale'].default_value=D["keycap"]["rev2"]["skin_grain_scale_per_m"]
+    grain.inputs['Detail'].default_value=2.0
+    coord=nt.nodes.new('ShaderNodeTexCoord')
+    bump=nt.nodes.new('ShaderNodeBump')
+    bump.inputs['Distance'].default_value=D["keycap"]["rev2"]["skin_grain_bump_mm"]*MM
+    bump.inputs['Strength'].default_value=D["keycap"]["rev2"]["skin_grain_strength"]
+    nt.links.new(coord.outputs['Object'],grain.inputs['Vector'])
+    nt.links.new(grain.outputs['Fac'],bump.inputs['Height'])
+    nt.links.new(bump.outputs['Normal'],nt.nodes['Principled BSDF'].inputs['Normal'])
+    rough=nt.nodes.new('ShaderNodeMapRange')
+    rough.inputs['From Min'].default_value=0.35
+    rough.inputs['From Max'].default_value=0.65
+    rough.inputs['To Min'].default_value=D['keycap']['rev2']['skin_roughness_range'][0]
+    rough.inputs['To Max'].default_value=D['keycap']['rev2']['skin_roughness_range'][1]
+    nt.links.new(grain.outputs['Fac'],rough.inputs['Value'])
+    nt.links.new(rough.outputs['Result'],nt.nodes['Principled BSDF'].inputs['Roughness'])
 
     # stagger-hugging top opening, generated offline by outline.py (needs scipy/cv2)
     import hashlib
@@ -708,15 +768,17 @@ def build(design):
         # ---- frost shell
         bt, hh = D["case"]["bottom_t_mm"], D["case"]["height_mm"]
         lip = D["case"]["lip_bottom_z_mm"]
-        shell = prism(f"{half}_shell", out_pts, bt, hh, coll, mats["frost_acrylic"])
+        seam_z = D["case"]["lower_base"]["seam_z_mm"]
+        shell = prism(f"{half}_shell", out_pts, seam_z, hh, coll, mats["frost_acrylic"])
         bool_diff(shell, prism(f"{half}_c_open", open_pts, lip, hh + 0.1, colls["Cut"]))
-        bool_diff(shell, prism(f"{half}_c_cav", cav_pts, bt - 0.1, lip, colls["Cut"]))
+        bool_diff(shell, prism(f"{half}_c_cav", cav_pts, seam_z - 0.1, lip, colls["Cut"]))
 
         # ---- USB-C on the inner edge
         u = D["internals"]["usb_c"]
         other = seg[0] if seg[1] == back_end else seg[1]
         along = Vector((other[0] - back_end[0], other[1] - back_end[1])).normalized()
         port_c = Vector(back_end) + along * u["from_back_mm"]
+        g["usb_port_c"] = port_c                      # for raycast_ports.py
         stad = rounded_rect(u["opening_mm"][0], u["opening_mm"][1],
                             min(u["r_mm"], u["opening_mm"][1] / 2), 4)
         nn = len(stad)
@@ -730,19 +792,18 @@ def build(design):
         cfaces = [tuple(reversed(range(nn))), tuple(range(nn, 2 * nn))]
         cfaces += [(i, (i + 1) % nn, (i + 1) % nn + nn, i + nn) for i in range(nn)]
         bool_diff(shell, new_obj(f"{half}_c_usb", cverts, cfaces, colls["Cut"]))
-        # receptacle shell recessed behind the wall face
-        sh_pts = rounded_rect(u["shell_mm"][0], u["shell_mm"][1],
-                              min(1.4, u["shell_mm"][1] / 2), 4)
+        # H7: hollow receptacle ring recessed behind the wall face
         dep = 4.5
         front = port_c - nvec * u["recess_mm"]
-        sverts = []
-        for dpt in (0.0, -dep):
-            for sx, sy in sh_pts:
-                p = front + along * sx + nvec * dpt
-                sverts.append((p.x, p.y, u["z_mm"] + sy))
-        sfaces = [tuple(reversed(range(nn))), tuple(range(nn, 2 * nn))]
-        sfaces += [(i, (i + 1) % nn, (i + 1) % nn + nn, i + nn) for i in range(nn)]
-        new_obj(f"{half}_usb_shell", sverts, sfaces, coll, mats[u["material_shell"]])
+        o_pts = rounded_rect(u["shell_mm"][0], u["shell_mm"][1],
+                             min(1.4, u["shell_mm"][1] / 2), 4)
+        i_pts = rounded_rect(u["shell_mm"][0] - 0.6, u["shell_mm"][1] - 0.6,
+                             min(1.1, (u["shell_mm"][1] - 0.6) / 2), 4)
+        def _ring_v(sx, sy, d):
+            p = front + along * sx + nvec * d
+            return (p.x, p.y, u["z_mm"] + sy)
+        stadium_ring(f"{half}_usb_shell", o_pts, i_pts, 0.0, -dep,
+                     _ring_v, coll, mats[u["material_shell"]])
         iverts = []
         for sx, sy in rounded_rect(u["opening_mm"][0] - 0.5, u["opening_mm"][1] - 0.5,
                                    1.2, 3):
@@ -750,20 +811,32 @@ def build(design):
             iverts.append((p.x, p.y, u["z_mm"] + sy))
         new_obj(f"{half}_usb_dark", iverts, [tuple(range(len(iverts)))], coll,
                 mats["usb_dark"])
-        tp = rounded_rect(6.0, 0.7, 0.3, 3)
+        tp = rounded_rect(6.7, 0.7, 0.3, 3)
         tverts = []
-        for dpt in (-dep + 0.4, -dep + 2.4):
+        for dpt in (-1.0, -3.0):
             for sx, sy in tp:
                 p = front + along * sx + nvec * dpt
-                tverts.append((p.x, p.y, u["z_mm"] + sy - 0.35))
+                tverts.append((p.x, p.y, u["z_mm"] + sy))
         ntp = len(tp)
         tfaces = [tuple(reversed(range(ntp))), tuple(range(ntp, 2 * ntp))]
         tfaces += [(i, (i + 1) % ntp, (i + 1) % ntp + ntp, i + ntp) for i in range(ntp)]
         new_obj(f"{half}_usb_tongue", tverts, tfaces, coll, mats["pom_white"])
 
         # ---- clear bottom (leg pocket cut after the leg is sized, below)
-        bottom = prism(f"{half}_bottom", out_pts, 0.0, bt, coll, mats["clear_acrylic"])
-        flat_shade(bottom)   # R4
+        profile = rev2_case.create_lower_base(half, out_pts, D, keys, coll, mats, sys.modules[__name__], desk_z=dz)
+        bottom = prism(f"{half}_bottom", profile["floor_outline"], 0.0, bt, coll, mats["clear_acrylic"])
+        flat_shade(bottom)
+        derived[f"{half}_lower_profile"] = profile["profile"]
+        # Thin clear floor follows the underside desk plane inside the tapered skirt.
+        for v in bottom.data.vertices:
+            x,y=v.co.x/MM,v.co.y/MM
+            v.co.z=(profile["bottom_z"]((x,y))+v.co.z/MM)*MM
+        # Rubber contacts sit in the lower case; avoid tall stand-in rear pillars.
+        for ob in coll.objects:
+            if ob.name.startswith((f"{half}_pad_",f"{half}_bar_")):
+                for v in ob.data.vertices:
+                    x,y=v.co.x/MM,v.co.y/MM
+                    v.co.z=(profile["bottom_z"]((x,y))+D["feet"]["front_pad"]["h_mm"] if abs(v.co.z)<1e-8 else dz(x,y))*MM
 
         # ---- plate + switch holes, pcb
         plate = prism(f"{half}_plate", plate_pts, D["stack"]["plate_z"][0],
@@ -781,7 +854,7 @@ def build(design):
                        (bi, bi + 4, bi + 5, bi + 1), (bi + 1, bi + 5, bi + 6, bi + 2),
                        (bi + 2, bi + 6, bi + 7, bi + 3), (bi + 3, bi + 7, bi + 4, bi)]
         bool_diff(plate, new_obj(f"{half}_c_holes", hverts, hfaces, colls["Cut"]))
-        prism(f"{half}_pcb", pcb_pts, D["stack"]["pcb_z"][0],
+        pcb = prism(f"{half}_pcb", pcb_pts, D["stack"]["pcb_z"][0],
               D["stack"]["pcb_z"][1], coll, mats[D["pcb"]["material"]])
 
         # ---- internals
@@ -919,6 +992,7 @@ def build(design):
             return min(seg_poly_dist(p, tp2) for kp in keepout for p in kp)
 
         tab_pos = []
+        leaf_centers = []
         for i in range(n_tab):
             s0 = perim * i / n_tab
             best, bs_ = s0, tab_clear(s0)
@@ -934,19 +1008,16 @@ def build(design):
             assert bs_ >= 0.5, f"{half} gasket tab {i} buried in keepout"
             tab_pos.append(round(best % perim, 2))
             tp2 = tab_poly(best)
-            prism(f"{half}_gasket{i}", tp2, pz0 + 0.005, pz1 - 0.005,
-                  coll, mats[D["plate"]["material"]])
-            # notch in the frost shell: tab footprint + 0.3, bottom pad to lip
-            ncx = [(p[0] + (p[0] - (sum(q[0] for q in tp2) / 4)) * 0.3 / tab_w,
-                    p[1] + (p[1] - (sum(q[1] for q in tp2) / 4)) * 0.3 / tab_d)
-                   for p in tp2]
-            bool_diff(shell, prism(f"{half}_c_gnotch{i}", ncx,
-                                   pz0 - gz["pad_t_mm"], 17.5,
-                                   colls["Cut"]))
-            prism(f"{half}_gpad_u{i}", tp2, pz1, pz1 + gz["pad_t_mm"],
-                  coll, mats[gz["material"]])
-            prism(f"{half}_gpad_d{i}", tp2, pz0 - gz["pad_t_mm"], pz0,
-                  coll, mats[gz["material"]])
+            ep,en=edge_at(best)
+            inboard=D['gasket']['leaf_mount']['station_inboard_mm']
+            leaf_centers.append({"xy":(ep[0]-en[0]*inboard,ep[1]-en[1]*inboard),"normal":en,"tangent":(-en[1],en[0])})
+            # Retain a small PP mounting tongue at the plate edge.
+            center=(sum(p[0] for p in tp2)/4,sum(p[1] for p in tp2)/4)
+            tp2=sorted(tp2,key=lambda p:math.atan2(p[1]-center[1],p[0]-center[0]))
+            prism(f"{half}_gasket{i}",tp2,pz0,pz1,coll,mats[D["plate"]["material"]])
+        mounts=rev2_case.add_leaf_mount(half,leaf_centers,D,coll,mats,sys.modules[__name__])
+        derived[f"{half}_leaf_stations"]=[{"xy_mm":m["xy_mm"],"normal":m["normal"],"tangent":m["tangent"]} for m in mounts]
+        derived[f"{half}_pcb_flex_slots"]=rev2_case.cut_pcb_flex(pcb,half,leaf_centers,D,colls["Cut"],sys.modules[__name__])
         logs.append(f"{half} gasket tabs {n_tab} at {tab_pos}, "
                     f"min keepout clearance {bs_:.1f} mm")
         derived[f"{half}_gasket_arc_mm"] = tab_pos
@@ -996,35 +1067,37 @@ def build(design):
             rcfg = D["keycap"]["rows"][row]
             key_cm = (k["w_u"], row)
             if key_cm not in cap_meshes:
-                cap_meshes[key_cm] = cap_mesh(f"cap_{row}_{k['w_u']:g}", k["w_u"], rcfg, kc)
+                cap_meshes[key_cm] = rev2_keycaps.build_cap_mesh(f"cap_{row}_{k['w_u']:g}", k["w_u"], rcfg, kc, sys.modules[__name__])
                 cap_meshes[key_cm].materials.append(mats[kc["material"]])
             cap = bpy.data.objects.new(f"{half}_{kid}_cap", cap_meshes[key_cm])
             coll.objects.link(cap)
             cap.location = (k["x_mm"] * MM, k["y_mm"] * MM, cap_bottom_z * MM)
             cap.rotation_euler.z = a
-            add_legend(cap, k, rcfg, kc, mats[kc["legend_material"]], coll, fonts)
+            rev2_keycaps.add_details(cap,k,rcfg,kc,mats,coll,fonts,sys.modules[__name__])
             if kc["legend"].get("text", {}).get(k["label"], k["label"]) != "":
                 n_leg += 1
 
-        # ---- logo wing inlay: both halves carry the right-wing curve; each
-        # half's inward frame mirrors it (L's wing extends into the L bezel).
+        # Full variant C inlay on the right arrow shoulder.
         lg = D["logo"]
-        wpts = wing_pts(D, 1, lg["wing_span_mm"])
-        ey = e_b
-        world_pts = [(vertex[0] + inward[0] * px + ey[0] * py,
-                      vertex[1] + inward[1] * px + ey[1] * py) for px, py in wpts]
-        top = hh + 0.02
-        # R9: dark hairline groove under the inlay so it reads as metal
-        ribbon(f"{half}_gull_groove", world_pts, lg["stroke_mm"] + 0.3,
-               top - lg["inlay_depth_mm"] - 0.15, top - 0.05, coll,
-               mats["black_glass"])
-        ribbon(f"{half}_gull", world_pts, lg["stroke_mm"],
-               top - lg["inlay_depth_mm"], top, coll, mats[lg["material"]])
-        clr = min(ol.dist_to_poly(open_pts, p) for p in world_pts) - lg["stroke_mm"] / 2
-        logs.append(f"{half} gull->opening clearance {clr:.2f} mm, legends {n_leg}")
-        assert clr >= lg["min_clear_to_opening_mm"], \
-            f"{half} gull clearance {clr:.2f} < {lg['min_clear_to_opening_mm']}"
-        # ---- keyboard knob (user 2026-10-02): right of Backspace on the right half
+        clr = 0.0
+        if half == "R":
+            lx, ly = ol.logo_xy(D, keys)
+            top = hh + lg["proud_mm"]
+            clearances = []
+            for side in (-1, 1):
+                world_pts = [(lx + px, ly + py) for px, py in wing_pts(D, side, lg["wing_span_mm"])]
+                assert all(ol.point_in(out_pts, p) and not ol.point_in(open_pts, p) for p in world_pts), "Right gull must sit on solid top"
+                ribbon(f"R_gull{'L' if side < 0 else 'R'}_groove", world_pts,
+                       lg["stroke_mm"] + lg["groove_margin_mm"], top - lg["inlay_depth_mm"] - lg["groove_depth_mm"],
+                       top - lg["groove_recess_mm"], coll, mats["black_glass"])
+                ribbon(f"R_gull{'L' if side < 0 else 'R'}", world_pts, lg["stroke_mm"],
+                       top - lg["inlay_depth_mm"], top, coll, mats[lg["material"]])
+                clearances.append(min(min(ol.dist_to_poly(open_pts,p),ol.dist_to_poly(out_pts,p)) for p in world_pts) - lg["stroke_mm"] / 2)
+            clr = min(clearances)
+            assert clr >= lg["min_clear_to_opening_mm"], f"Right gull edge clearance {clr:.2f} mm"
+            derived["right_gull_vertex_mm"] = [lx, ly, top]
+        logs.append(f"{half} full gull clearance {clr:.2f} mm, legends {n_leg}")
+        # Keyboard knob follows encoders[] in the layout.
         kxy = ol.knob_xy(D, keys)
         if kxy and kxy[0] == half:
             kb = D["knob_kb"]
@@ -1040,299 +1113,302 @@ def build(design):
         g["inward"] = inward
         g["e_back"] = e_b
 
-        # ---- tent U-frame: flat bar + arms + skewed hinge + over-centre links.
-        # The case keeps its 6 deg typing slope, so the hinge line is skewed in
-        # the pocket plane (front arm shorter, back longer, mean = arm_len_mm);
-        # phi + arm lengths are solved so BOTH bar-end corners touch the desk.
-        tc = D["tent"]; uf = tc["u_frame"]
-        oi = [i for i, e in enumerate(edges)
-              if e["name"] in uf["outer_edges"][half]]
-        ie = min(oi, key=lambda i: L[i][1])            # innermost edge line
-        n_out, d_edge = L[ie]
-        tdir = Vector((-n_out[1], n_out[0]))            # tangent along the edge
-        cy = uf["center_mm"][half]
-        W = uf["width_mm"]                              # bar length along edge
-        PW, T = uf["profile_mm"]                        # bar width x thickness
-        AL, EI = uf["arm_len_mm"], uf["edge_inset_mm"]  # AL = mean arm length
-        pk = uf["pocket_clear_mm"]
-        bw2, iw2 = W / 2, W / 2 - PW                     # 35, 27 for 70/8
-        # hinge frame: x' along the edge (t_dir), y' outward (n_out), z' up.
-        # frame origin at the nominal hinge line (EI + AL inboard of the edge).
-        H0 = (n_out[0] * (d_edge - EI - AL) + tdir.x * cy,
-              n_out[1] * (d_edge - EI - AL) + tdir.y * cy)
-        A4 = Matrix((Vector((tdir.x, tdir.y, 0)),
-                     Vector((n_out[0], n_out[1], 0)),
-                     Vector((0, 0, 1)))).transposed().to_4x4()
-        def hc(px, py):
-            """hinge-frame mm -> case-frame mm (z=0 plane)."""
-            return Vector((H0[0] + tdir.x * px + n_out[0] * py,
-                           H0[1] + tdir.y * px + n_out[1] * py))
-        def h3(px, py, pz=0.0):
-            return Vector((hc(px, py).x, hc(px, py).y, pz))
-        xarm = bw2 - PW / 2                              # 31: arm centrelines
-        x_f = xarm if tdir.y < 0 else -xarm              # front arm centreline
-        x_b = -x_f
+        g["link_bases"], g["u_bases"] = {}, {}
+        g["u_center_mm"] = 0.0
+        if D["tent"].get("enabled", True):
+            # ---- tent U-frame: flat bar + arms + skewed hinge + over-centre links.
+            # The case keeps its 6 deg typing slope, so the hinge line is skewed in
+            # the pocket plane (front arm shorter, back longer, mean = arm_len_mm);
+            # phi + arm lengths are solved so BOTH bar-end corners touch the desk.
+            tc = D["tent"]; uf = tc["u_frame"]
+            oi = [i for i, e in enumerate(edges)
+                  if e["name"] in uf["outer_edges"][half]]
+            ie = min(oi, key=lambda i: L[i][1])            # innermost edge line
+            n_out, d_edge = L[ie]
+            tdir = Vector((-n_out[1], n_out[0]))            # tangent along the edge
+            cy = uf["center_mm"][half]
+            W = uf["width_mm"]                              # bar length along edge
+            PW, T = uf["profile_mm"]                        # bar width x thickness
+            AL, EI = uf["arm_len_mm"], uf["edge_inset_mm"]  # AL = mean arm length
+            pk = uf["pocket_clear_mm"]
+            bw2, iw2 = W / 2, W / 2 - PW                     # 35, 27 for 70/8
+            # hinge frame: x' along the edge (t_dir), y' outward (n_out), z' up.
+            # frame origin at the nominal hinge line (EI + AL inboard of the edge).
+            H0 = (n_out[0] * (d_edge - EI - AL) + tdir.x * cy,
+                  n_out[1] * (d_edge - EI - AL) + tdir.y * cy)
+            A4 = Matrix((Vector((tdir.x, tdir.y, 0)),
+                         Vector((n_out[0], n_out[1], 0)),
+                         Vector((0, 0, 1)))).transposed().to_4x4()
+            def hc(px, py):
+                """hinge-frame mm -> case-frame mm (z=0 plane)."""
+                return Vector((H0[0] + tdir.x * px + n_out[0] * py,
+                               H0[1] + tdir.y * px + n_out[1] * py))
+            def h3(px, py, pz=0.0):
+                return Vector((hc(px, py).x, hc(px, py).y, pz))
+            xarm = bw2 - PW / 2                              # 31: arm centrelines
+            x_f = xarm if tdir.y < 0 else -xarm              # front arm centreline
+            x_b = -x_f
 
-        M_tent = roll_M(g, D,
-                        pose_flat_M(g, D, D["poses"]["tented"]["gap_mm"], 0.0),
-                        RAD(tc["angle_deg"]))
+            M_tent = roll_M(g, D,
+                            pose_flat_M(g, D, D["poses"]["tented"]["gap_mm"], 0.0),
+                            RAD(tc["angle_deg"]))
 
-        # hinge axis through the arm-end hinge points; arm length a_s puts the
-        # hinge point at y' = AL - a_s on the arm centreline
-        def axis_pts(a_f, a_b):
-            Hf = h3(x_f, AL - a_f)
-            Hb = h3(x_b, AL - a_b)
-            return Hf, (Hb - Hf).normalized()
+            # hinge axis through the arm-end hinge points; arm length a_s puts the
+            # hinge point at y' = AL - a_s on the arm centreline
+            def axis_pts(a_f, a_b):
+                Hf = h3(x_f, AL - a_f)
+                Hb = h3(x_b, AL - a_b)
+                return Hf, (Hb - Hf).normalized()
 
-        def end_z(a_f, a_b, th):
-            """world z of both bar-end bottom-outer corners after deploy."""
-            Hf, u3 = axis_pts(a_f, a_b)
-            R = Matrix.Rotation(th, 4, u3)
-            out = []
-            for xe in (x_f + PW / 2 * (1 if tdir.y < 0 else -1),
-                       x_b - PW / 2 * (1 if tdir.y < 0 else -1)):
-                P = h3(xe, AL)
-                out.append((M_tent @ (Hf + R @ (P - Hf))).z)
-            return out
+            def end_z(a_f, a_b, th):
+                """world z of both bar-end bottom-outer corners after deploy."""
+                Hf, u3 = axis_pts(a_f, a_b)
+                R = Matrix.Rotation(th, 4, u3)
+                out = []
+                for xe in (x_f + PW / 2 * (1 if tdir.y < 0 else -1),
+                           x_b - PW / 2 * (1 if tdir.y < 0 else -1)):
+                    P = h3(xe, AL)
+                    out.append((M_tent @ (Hf + R @ (P - Hf))).z)
+                return out
 
-        sgn = 1.0 if sum(end_z(AL, AL, RAD(1.0))) < \
-                     sum(end_z(AL, AL, 0.0)) else -1.0
+            sgn = 1.0 if sum(end_z(AL, AL, RAD(1.0))) < \
+                         sum(end_z(AL, AL, 0.0)) else -1.0
 
-        def solve_phi(af_):
-            """bisect deploy angle so the FRONT bar end touches the desk."""
-            lo, hi = 0.0, RAD(85)
+            def solve_phi(af_):
+                """bisect deploy angle so the FRONT bar end touches the desk."""
+                lo, hi = 0.0, RAD(85)
+                for _ in range(45):
+                    mid = (lo + hi) / 2
+                    if front_z(af_, sgn * mid) > 0:
+                        lo = mid
+                    else:
+                        hi = mid
+                return sgn * (lo + hi) / 2
+
+            def front_z(af_, th_):
+                return end_z(af_, 2 * AL - af_, th_)[0]
+            def back_z(af_, th_):
+                return end_z(af_, 2 * AL - af_, th_)[1]
+
+            lo_a, hi_a = AL * 0.5, AL                     # front arm shorter
             for _ in range(45):
-                mid = (lo + hi) / 2
-                if front_z(af_, sgn * mid) > 0:
-                    lo = mid
+                amid = (lo_a + hi_a) / 2
+                th_ = solve_phi(amid)
+                if back_z(amid, th_) > 0:
+                    hi_a = amid   # back floats -> smaller a_f -> longer back arm
                 else:
-                    hi = mid
-            return sgn * (lo + hi) / 2
+                    lo_a = amid
+            a_f = (lo_a + hi_a) / 2
+            a_b = 2 * AL - a_f
+            th = solve_phi(a_f)
+            zf, zb = end_z(a_f, a_b, th)
+            assert abs(zf) < 0.05 and abs(zb) < 0.05, \
+                f"{half} U bar ends off desk: {zf:.3f}/{zb:.3f} mm"
+            g["u_theta"], g["u_arms"] = th, (a_f, a_b)
+            skew = math.degrees(math.atan((a_b - a_f) / (2 * xarm)))
+            logs.append(f"{half} U-frame arms front {a_f:.1f} / back {a_b:.1f} mm, "
+                        f"hinge skew {skew:.1f} deg, phi {math.degrees(th):.1f} deg, "
+                        f"desk contact z {zf:.3f}/{zb:.3f} mm")
 
-        def front_z(af_, th_):
-            return end_z(af_, 2 * AL - af_, th_)[0]
-        def back_z(af_, th_):
-            return end_z(af_, 2 * AL - af_, th_)[1]
+            # in the tented pose the OUTER feet must be off the desk
+            pad_h = D["feet"]["front_pad"]["h_mm"]
+            z_po = (M_tent @ Vector((*g["pads"]["outer"], -pad_h))).z
+            z_bo = (M_tent @ Vector((*g["bars"]["outer"], -g["bar_h"]))).z
+            assert z_po > 0.05 and z_bo > 0.05, \
+                f"{half} outer foot touches desk in tent pose ({z_po:.2f}/{z_bo:.2f})"
 
-        lo_a, hi_a = AL * 0.5, AL                     # front arm shorter
-        for _ in range(45):
-            amid = (lo_a + hi_a) / 2
-            th_ = solve_phi(amid)
-            if back_z(amid, th_) > 0:
-                hi_a = amid   # back floats -> smaller a_f -> longer back arm
-            else:
-                lo_a = amid
-        a_f = (lo_a + hi_a) / 2
-        a_b = 2 * AL - a_f
-        th = solve_phi(a_f)
-        zf, zb = end_z(a_f, a_b, th)
-        assert abs(zf) < 0.05 and abs(zb) < 0.05, \
-            f"{half} U bar ends off desk: {zf:.3f}/{zb:.3f} mm"
-        g["u_theta"], g["u_arms"] = th, (a_f, a_b)
-        skew = math.degrees(math.atan((a_b - a_f) / (2 * xarm)))
-        logs.append(f"{half} U-frame arms front {a_f:.1f} / back {a_b:.1f} mm, "
-                    f"hinge skew {skew:.1f} deg, phi {math.degrees(th):.1f} deg, "
-                    f"desk contact z {zf:.3f}/{zb:.3f} mm")
+            # hinge-side height of the U profile at x' (arm ends follow the skew)
+            def yh(x2):
+                return AL - (a_f + (a_b - a_f) * (x2 - x_f) / (x_b - x_f))
 
-        # in the tented pose the OUTER feet must be off the desk
-        pad_h = D["feet"]["front_pad"]["h_mm"]
-        z_po = (M_tent @ Vector((*g["pads"]["outer"], -pad_h))).z
-        z_bo = (M_tent @ Vector((*g["bars"]["outer"], -g["bar_h"]))).z
-        assert z_po > 0.05 and z_bo > 0.05, \
-            f"{half} outer foot touches desk in tent pose ({z_po:.2f}/{z_bo:.2f})"
+            # deploy transform: rotate about the skewed axis. Prot_mm works on mm
+            # points (link pivots); Prot on metre-space object bases (mesh verts
+            # are metres after new_obj's V3 scaling).
+            Hf3, u3 = axis_pts(a_f, a_b)
+            Prot_mm = (Matrix.Translation(Hf3) @ Matrix.Rotation(th, 4, u3)
+                       @ Matrix.Translation(-Hf3))
+            Prot = (Matrix.Translation(V3(Hf3)) @ Matrix.Rotation(th, 4, u3)
+                    @ Matrix.Translation(
+                        (-Hf3.x * MM, -Hf3.y * MM, -Hf3.z * MM)))
+            B0 = Matrix.Translation(Vector((H0[0] * MM, H0[1] * MM, 0.0))) @ A4
+            dep_b = Prot @ B0
+            g["u_bases"] = {}
 
-        # hinge-side height of the U profile at x' (arm ends follow the skew)
-        def yh(x2):
-            return AL - (a_f + (a_b - a_f) * (x2 - x_f) / (x_b - x_f))
-
-        # deploy transform: rotate about the skewed axis. Prot_mm works on mm
-        # points (link pivots); Prot on metre-space object bases (mesh verts
-        # are metres after new_obj's V3 scaling).
-        Hf3, u3 = axis_pts(a_f, a_b)
-        Prot_mm = (Matrix.Translation(Hf3) @ Matrix.Rotation(th, 4, u3)
-                   @ Matrix.Translation(-Hf3))
-        Prot = (Matrix.Translation(V3(Hf3)) @ Matrix.Rotation(th, 4, u3)
-                @ Matrix.Translation(
-                    (-Hf3.x * MM, -Hf3.y * MM, -Hf3.z * MM)))
-        B0 = Matrix.Translation(Vector((H0[0] * MM, H0[1] * MM, 0.0))) @ A4
-        dep_b = Prot @ B0
-        g["u_bases"] = {}
-
-        # U polygon: bar band + arms; hinge side follows the skewed line
-        cr = uf["corner_r_mm"]
-        arc = [(iw2 - cr + cr * math.cos(math.pi / 2 * j / 4),
-                AL - PW - cr + cr * math.sin(math.pi / 2 * j / 4))
-               for j in range(5)]
-        arc2 = [(-x, y) for x, y in reversed(arc)]
-        upoly = ([(-bw2, yh(-bw2)), (-bw2, AL), (bw2, AL),
-                  (bw2, yh(bw2)), (iw2, yh(iw2)), (iw2, AL - PW - cr)]
-                 + arc + arc2
-                 + [(-iw2, yh(-iw2))])
-        uverts = [(p[0], p[1], 0.0) for p in upoly] + \
-                 [(p[0], p[1], T) for p in upoly]
-        nn = len(upoly)
-        ufaces = [tuple(reversed(range(nn))), tuple(range(nn, 2 * nn))]
-        ufaces += [(i, (i + 1) % nn, (i + 1) % nn + nn, i + nn)
-                   for i in range(nn)]
-        uob = new_obj(f"{half}_u_frame", uverts, ufaces, coll,
-                      mats[uf["material"]])
-        recalc_normals(uob.data)
-        flat_shade(uob)     # R4
-        uob.matrix_basis = B0
-        g["u_bases"][uob.name] = (B0.copy(), dep_b.copy())
-
-        # hinge knuckles on the skewed axis at each arm end
-        ux2, uy2 = x_b - x_f, yh(x_b) - yh(x_f)
-        ul2 = math.hypot(ux2, uy2)
-        uax = (ux2 / ul2, uy2 / ul2)
-        for si, xs2 in enumerate((-xarm, xarm)):
-            ys2 = yh(xs2)
-            ring = [(T / 2 * math.cos(2 * math.pi * j / 12),
-                     T / 2 * math.sin(2 * math.pi * j / 12)) for j in range(12)]
-            kverts = []
-            for ds2 in (-PW / 2, PW / 2):
-                for ry2, rz2 in ring:
-                    kverts.append((xs2 + uax[0] * ds2 - uax[1] * ry2,
-                                   ys2 + uax[1] * ds2 + uax[0] * ry2,
-                                   T / 2 + rz2))
-            nk = len(ring)
-            kfaces = [tuple(reversed(range(nk))), tuple(range(nk, 2 * nk))]
-            kfaces += [(i, (i + 1) % nk, (i + 1) % nk + nk, i + nk)
-                       for i in range(nk)]
-            kob = new_obj(f"{half}_u_kn{si}", kverts, kfaces, coll,
+            # U polygon: bar band + arms; hinge side follows the skewed line
+            cr = uf["corner_r_mm"]
+            arc = [(iw2 - cr + cr * math.cos(math.pi / 2 * j / 4),
+                    AL - PW - cr + cr * math.sin(math.pi / 2 * j / 4))
+                   for j in range(5)]
+            arc2 = [(-x, y) for x, y in reversed(arc)]
+            upoly = ([(-bw2, yh(-bw2)), (-bw2, AL), (bw2, AL),
+                      (bw2, yh(bw2)), (iw2, yh(iw2)), (iw2, AL - PW - cr)]
+                     + arc + arc2
+                     + [(-iw2, yh(-iw2))])
+            uverts = [(p[0], p[1], 0.0) for p in upoly] + \
+                     [(p[0], p[1], T) for p in upoly]
+            nn = len(upoly)
+            ufaces = [tuple(reversed(range(nn))), tuple(range(nn, 2 * nn))]
+            ufaces += [(i, (i + 1) % nn, (i + 1) % nn + nn, i + nn)
+                       for i in range(nn)]
+            uob = new_obj(f"{half}_u_frame", uverts, ufaces, coll,
                           mats[uf["material"]])
-            kob.matrix_basis = B0
-            g["u_bases"][kob.name] = (B0.copy(), dep_b.copy())
+            recalc_normals(uob.data)
+            flat_shade(uob)     # R4
+            uob.matrix_basis = B0
+            g["u_bases"][uob.name] = (B0.copy(), dep_b.copy())
 
-        # over-centre stay per arm: pivot at 0.6 * arm length from the hinge
-        lw, lt = uf["link_mm"]
-        off_lat = PW / 2 + lw / 2 + 0.5                  # inner side of the arm
-        g["link_bases"] = {}
-        t3 = Vector((tdir.x, tdir.y, 0.0))               # hinge x' dir in case
+            # hinge knuckles on the skewed axis at each arm end
+            ux2, uy2 = x_b - x_f, yh(x_b) - yh(x_f)
+            ul2 = math.hypot(ux2, uy2)
+            uax = (ux2 / ul2, uy2 / ul2)
+            for si, xs2 in enumerate((-xarm, xarm)):
+                ys2 = yh(xs2)
+                ring = [(T / 2 * math.cos(2 * math.pi * j / 12),
+                         T / 2 * math.sin(2 * math.pi * j / 12)) for j in range(12)]
+                kverts = []
+                for ds2 in (-PW / 2, PW / 2):
+                    for ry2, rz2 in ring:
+                        kverts.append((xs2 + uax[0] * ds2 - uax[1] * ry2,
+                                       ys2 + uax[1] * ds2 + uax[0] * ry2,
+                                       T / 2 + rz2))
+                nk = len(ring)
+                kfaces = [tuple(reversed(range(nk))), tuple(range(nk, 2 * nk))]
+                kfaces += [(i, (i + 1) % nk, (i + 1) % nk + nk, i + nk)
+                           for i in range(nk)]
+                kob = new_obj(f"{half}_u_kn{si}", kverts, kfaces, coll,
+                              mats[uf["material"]])
+                kob.matrix_basis = B0
+                g["u_bases"][kob.name] = (B0.copy(), dep_b.copy())
 
-        def link_basis(p0c, p1c):
-            """basis for a link spanning case-frame mm points p0c -> p1c."""
-            u_ = p1c - p0c
-            u_.normalize()
-            w_ = t3.copy()
-            v_ = u_.cross(w_).normalized()
-            w_ = u_.cross(v_).normalized()
-            L4 = Matrix((u_, v_, w_)).transposed().to_4x4()
-            return Matrix.Translation(V3((p0c + p1c) / 2)) @ L4
+            # over-centre stay per arm: pivot at 0.6 * arm length from the hinge
+            lw, lt = uf["link_mm"]
+            off_lat = PW / 2 + lw / 2 + 0.5                  # inner side of the arm
+            g["link_bases"] = {}
+            t3 = Vector((tdir.x, tdir.y, 0.0))               # hinge x' dir in case
 
-        for sgn2, xs2 in ((-1, -xarm), (1, xarm)):
-            a_s = a_f if xs2 == x_f else a_b
-            xlk = xs2 - sgn2 * off_lat
-            ypv = yh(xs2) + uf["link_pos_frac"] * a_s
-            Pc = h3(xlk, ypv, T / 2)
-            Pa = Prot_mm @ Pc                            # arm pivot rides the U
-            chord = (Pa - Pc).length
-            l = chord / 2 / math.cos(RAD(uf["over_center_deg"]))
-            dl = Pa - Pc
-            perp = dl.cross(t3)
-            if perp.length < 1e-9:
-                perp = Vector((0.0, 0.0, 1.0))
-            perp.normalize()
-            K = (Pc + Pa) / 2 + perp * (l * math.sin(RAD(uf["over_center_deg"])))
-            if K.z < (Pc.z + Pa.z) / 2:
-                K = (Pc + Pa) / 2 - perp * (l * math.sin(RAD(uf["over_center_deg"])))
-            lv = [(sx2 * l / 2, sy2 * lw / 2, sz2 * lt / 2)
-                  for sx2 in (-1, 1) for sy2 in (-1, 1) for sz2 in (-1, 1)]
-            lf = [(0, 1, 3, 2), (4, 6, 7, 5), (0, 4, 5, 1), (2, 3, 7, 6),
-                  (0, 2, 6, 4), (1, 5, 7, 3)]
-            p_stow = [(h3(xlk, ypv, lt / 2), h3(xlk, ypv - l, lt / 2)),
-                      (h3(xlk + sgn2 * lt, ypv, lt * 1.5),
-                       h3(xlk + sgn2 * lt, ypv - l, lt * 1.5))]
-            for li, (p0, p1) in enumerate(((Pc, K), (K, Pa))):
-                lob = new_obj(f"{half}_ulink{sgn2}{li}", lv, lf, coll,
-                              mats["stainless_polished"])
-                recalc_normals(lob.data)
-                st_b, dp_b = link_basis(*p_stow[li]), link_basis(p0, p1)
-                lob.matrix_basis = st_b
-                g["link_bases"][lob.name] = (st_b, dp_b)
-            derived[f"{half}_u_link_{'front' if xs2 == x_f else 'back'}_mm"] = \
-                round(l, 2)
+            def link_basis(p0c, p1c):
+                """basis for a link spanning case-frame mm points p0c -> p1c."""
+                u_ = p1c - p0c
+                u_.normalize()
+                w_ = t3.copy()
+                v_ = u_.cross(w_).normalized()
+                w_ = u_.cross(v_).normalized()
+                L4 = Matrix((u_, v_, w_)).transposed().to_4x4()
+                return Matrix.Translation(V3((p0c + p1c) / 2)) @ L4
 
-        # pocket through the clear bottom = offset U footprint + link corridors
-        hb = T * abs(math.sin(th)) + 0.2 + pk            # swing clearance
+            for sgn2, xs2 in ((-1, -xarm), (1, xarm)):
+                a_s = a_f if xs2 == x_f else a_b
+                xlk = xs2 - sgn2 * off_lat
+                ypv = yh(xs2) + uf["link_pos_frac"] * a_s
+                Pc = h3(xlk, ypv, T / 2)
+                Pa = Prot_mm @ Pc                            # arm pivot rides the U
+                chord = (Pa - Pc).length
+                l = chord / 2 / math.cos(RAD(uf["over_center_deg"]))
+                dl = Pa - Pc
+                perp = dl.cross(t3)
+                if perp.length < 1e-9:
+                    perp = Vector((0.0, 0.0, 1.0))
+                perp.normalize()
+                K = (Pc + Pa) / 2 + perp * (l * math.sin(RAD(uf["over_center_deg"])))
+                if K.z < (Pc.z + Pa.z) / 2:
+                    K = (Pc + Pa) / 2 - perp * (l * math.sin(RAD(uf["over_center_deg"])))
+                lv = [(sx2 * l / 2, sy2 * lw / 2, sz2 * lt / 2)
+                      for sx2 in (-1, 1) for sy2 in (-1, 1) for sz2 in (-1, 1)]
+                lf = [(0, 1, 3, 2), (4, 6, 7, 5), (0, 4, 5, 1), (2, 3, 7, 6),
+                      (0, 2, 6, 4), (1, 5, 7, 3)]
+                p_stow = [(h3(xlk, ypv, lt / 2), h3(xlk, ypv - l, lt / 2)),
+                          (h3(xlk + sgn2 * lt, ypv, lt * 1.5),
+                           h3(xlk + sgn2 * lt, ypv - l, lt * 1.5))]
+                for li, (p0, p1) in enumerate(((Pc, K), (K, Pa))):
+                    lob = new_obj(f"{half}_ulink{sgn2}{li}", lv, lf, coll,
+                                  mats["stainless_polished"])
+                    recalc_normals(lob.data)
+                    st_b, dp_b = link_basis(*p_stow[li]), link_basis(p0, p1)
+                    lob.matrix_basis = st_b
+                    g["link_bases"][lob.name] = (st_b, dp_b)
+                derived[f"{half}_u_link_{'front' if xs2 == x_f else 'back'}_mm"] = \
+                    round(l, 2)
 
-        def offset_poly(pts, dists):
-            """offset each edge outward (right of CCW winding), miter corners."""
-            n2 = len(pts)
-            ar = sum(pts[i][0] * pts[(i + 1) % n2][1] -
-                     pts[(i + 1) % n2][0] * pts[i][1] for i in range(n2)) / 2
-            s2 = 1.0 if ar > 0 else -1.0
-            keep = []
-            for i in range(n2):
-                a2, b2 = pts[i], pts[(i + 1) % n2]
-                if math.hypot(b2[0] - a2[0], b2[1] - a2[1]) >= 1e-9:
-                    keep.append(i)
-            pts = [pts[i] for i in keep]
-            dists = [dists[i] for i in keep]
-            n2 = len(pts)
-            lines = []
-            for i in range(n2):
-                a2, b2 = pts[i], pts[(i + 1) % n2]
-                dx, dy = b2[0] - a2[0], b2[1] - a2[1]
-                dl2 = math.hypot(dx, dy)
-                nx, ny = s2 * dy / dl2, -s2 * dx / dl2
-                d_ = dists[i]
-                lines.append(((a2[0] + nx * d_, a2[1] + ny * d_),
-                              (b2[0] + nx * d_, b2[1] + ny * d_)))
-            out2 = []
-            for i in range(n2):
-                (a1, b1), (a2, b2) = lines[(i - 1) % n2], lines[i]
-                d1x, d1y = b1[0] - a1[0], b1[1] - a1[1]
-                d2x, d2y = b2[0] - a2[0], b2[1] - a2[1]
-                den = d1x * d2y - d1y * d2x
-                if abs(den) < 1e-9:
-                    out2.append(b1)
-                    continue
-                tt = ((a2[0] - a1[0]) * d2y - (a2[1] - a1[1]) * d2x) / den
-                out2.append((a1[0] + d1x * tt, a1[1] + d1y * tt))
-            return out2
+            # pocket through the clear bottom = offset U footprint + link corridors
+            hb = T * abs(math.sin(th)) + 0.2 + pk            # swing clearance
 
-        nd = len(upoly)
-        dists = []
-        for i in range(nd):
-            a2, b2 = upoly[i], upoly[(i + 1) % nd]
-            my, mx = (a2[1] + b2[1]) / 2, (a2[0] + b2[0]) / 2
-            hinge_side = my < min(yh(-bw2), yh(bw2)) + 2 and abs(mx) > iw2 - 1
-            dists.append(hb if hinge_side else pk)
-        pkc = [(hc(px, py).x, hc(px, py).y)
-               for px, py in offset_poly(upoly, dists)]
+            def offset_poly(pts, dists):
+                """offset each edge outward (right of CCW winding), miter corners."""
+                n2 = len(pts)
+                ar = sum(pts[i][0] * pts[(i + 1) % n2][1] -
+                         pts[(i + 1) % n2][0] * pts[i][1] for i in range(n2)) / 2
+                s2 = 1.0 if ar > 0 else -1.0
+                keep = []
+                for i in range(n2):
+                    a2, b2 = pts[i], pts[(i + 1) % n2]
+                    if math.hypot(b2[0] - a2[0], b2[1] - a2[1]) >= 1e-9:
+                        keep.append(i)
+                pts = [pts[i] for i in keep]
+                dists = [dists[i] for i in keep]
+                n2 = len(pts)
+                lines = []
+                for i in range(n2):
+                    a2, b2 = pts[i], pts[(i + 1) % n2]
+                    dx, dy = b2[0] - a2[0], b2[1] - a2[1]
+                    dl2 = math.hypot(dx, dy)
+                    nx, ny = s2 * dy / dl2, -s2 * dx / dl2
+                    d_ = dists[i]
+                    lines.append(((a2[0] + nx * d_, a2[1] + ny * d_),
+                                  (b2[0] + nx * d_, b2[1] + ny * d_)))
+                out2 = []
+                for i in range(n2):
+                    (a1, b1), (a2, b2) = lines[(i - 1) % n2], lines[i]
+                    d1x, d1y = b1[0] - a1[0], b1[1] - a1[1]
+                    d2x, d2y = b2[0] - a2[0], b2[1] - a2[1]
+                    den = d1x * d2y - d1y * d2x
+                    if abs(den) < 1e-9:
+                        out2.append(b1)
+                        continue
+                    tt = ((a2[0] - a1[0]) * d2y - (a2[1] - a1[1]) * d2x) / den
+                    out2.append((a1[0] + d1x * tt, a1[1] + d1y * tt))
+                return out2
 
-        # link corridors beside each arm (rect cutters, overlap the U pocket)
-        for sgn2, xs2 in ((-1, -xarm), (1, xarm)):
-            xlk = xs2 - sgn2 * off_lat
-            xlo = min(xlk - lw / 2 - pk, xs2 - PW / 2 - pk)
-            xhi = max(xlk + lw / 2 + pk, xs2 + PW / 2 + pk)
-            crd = [(hc(xlo, yh(xlo) - hb).x, hc(xlo, yh(xlo) - hb).y),
-                   (hc(xhi, yh(xhi) - hb).x, hc(xhi, yh(xhi) - hb).y),
-                   (hc(xhi, AL - PW + pk).x, hc(xhi, AL - PW + pk).y),
-                   (hc(xlo, AL - PW + pk).x, hc(xlo, AL - PW + pk).y)]
-            pkc += crd
-            bool_diff(bottom, prism(f"{half}_c_pocket_l{sgn2}", crd,
-                                    -0.2, bt + 0.2, colls["Cut"]))
-        assert all(ol.point_in(out_pts, p) for p in pkc) and \
-            min(ol.dist_to_poly(out_pts, p) for p in pkc) >= 2.0, \
-            f"{half} U-pocket outside outline"
-        for p_name, fp, hw, hh in (("pad", g["pads"]["outer"], 5.0, 5.0),
-                                   ("bar", g["bars"]["outer"], 14.0, 4.0)):
-            cnr = [(fp[0] + hw * sx2, fp[1] + hh * sy2)
-                   for sx2 in (-1, 1) for sy2 in (-1, 1)]
-            md = min(ol.dist_to_poly(pkc, p) for p in cnr)
-            inside = any(ol.point_in(pkc, p) for p in cnr) or \
-                any(ol.point_in(cnr, p) for p in pkc)
-            logs.append(f"{half} pocket->{p_name} clearance {md:.2f} mm")
-            assert not inside and md >= 0.8, \
-                f"{half} U-pocket overlaps outer {p_name} ({md:.2f})"
-        bool_diff(bottom, prism(f"{half}_c_pocket", pkc, -0.2, bt + 0.2,
-                                colls["Cut"]))
-        g["u_center_mm"] = cy
-        derived[f"{half}_u_deploy_deg"] = round(math.degrees(th), 2)
-        derived[f"{half}_u_arms_mm"] = [round(a_f, 2), round(a_b, 2)]
-        derived[f"{half}_u_skew_deg"] = round(skew, 2)
+            nd = len(upoly)
+            dists = []
+            for i in range(nd):
+                a2, b2 = upoly[i], upoly[(i + 1) % nd]
+                my, mx = (a2[1] + b2[1]) / 2, (a2[0] + b2[0]) / 2
+                hinge_side = my < min(yh(-bw2), yh(bw2)) + 2 and abs(mx) > iw2 - 1
+                dists.append(hb if hinge_side else pk)
+            pkc = [(hc(px, py).x, hc(px, py).y)
+                   for px, py in offset_poly(upoly, dists)]
+
+            # link corridors beside each arm (rect cutters, overlap the U pocket)
+            for sgn2, xs2 in ((-1, -xarm), (1, xarm)):
+                xlk = xs2 - sgn2 * off_lat
+                xlo = min(xlk - lw / 2 - pk, xs2 - PW / 2 - pk)
+                xhi = max(xlk + lw / 2 + pk, xs2 + PW / 2 + pk)
+                crd = [(hc(xlo, yh(xlo) - hb).x, hc(xlo, yh(xlo) - hb).y),
+                       (hc(xhi, yh(xhi) - hb).x, hc(xhi, yh(xhi) - hb).y),
+                       (hc(xhi, AL - PW + pk).x, hc(xhi, AL - PW + pk).y),
+                       (hc(xlo, AL - PW + pk).x, hc(xlo, AL - PW + pk).y)]
+                pkc += crd
+                bool_diff(bottom, prism(f"{half}_c_pocket_l{sgn2}", crd,
+                                        -0.2, bt + 0.2, colls["Cut"]))
+            assert all(ol.point_in(out_pts, p) for p in pkc) and \
+                min(ol.dist_to_poly(out_pts, p) for p in pkc) >= 2.0, \
+                f"{half} U-pocket outside outline"
+            for p_name, fp, hw, hh in (("pad", g["pads"]["outer"], 5.0, 5.0),
+                                       ("bar", g["bars"]["outer"], 14.0, 4.0)):
+                cnr = [(fp[0] + hw * sx2, fp[1] + hh * sy2)
+                       for sx2 in (-1, 1) for sy2 in (-1, 1)]
+                md = min(ol.dist_to_poly(pkc, p) for p in cnr)
+                inside = any(ol.point_in(pkc, p) for p in cnr) or \
+                    any(ol.point_in(cnr, p) for p in pkc)
+                logs.append(f"{half} pocket->{p_name} clearance {md:.2f} mm")
+                assert not inside and md >= 0.8, \
+                    f"{half} U-pocket overlaps outer {p_name} ({md:.2f})"
+            bool_diff(bottom, prism(f"{half}_c_pocket", pkc, -0.2, bt + 0.2,
+                                    colls["Cut"]))
+            g["u_center_mm"] = cy
+            derived[f"{half}_u_deploy_deg"] = round(math.degrees(th), 2)
+            derived[f"{half}_u_arms_mm"] = [round(a_f, 2), round(a_b, 2)]
+            derived[f"{half}_u_skew_deg"] = round(skew, 2)
 
         bevel(shell, D["case"]["edge_fillet_mm"], 3)
         bevel(bottom, D["case"]["edge_fillet_mm"], 3)
@@ -1450,29 +1526,6 @@ def build(design):
     derived["outline_vertices"] = {h: rep[h]["vertices_mm"] for h in "LR"}
     derived["min_bezel_mm"] = {h: rep[h]["min_bezel_mm"] for h in "LR"}
 
-    # gull clearance table (SolidWorks handoff): per vertex offset along the
-    # inner edge, min stroke->opening clearance per half at the chosen span
-    lg = D["logo"]
-    wcv = wing_pts(D, 1, lg["wing_span_mm"], seg=40)
-    table = []
-    for off10 in range(-160, 161, 5):
-        off = off10 / 20.0
-        row = [off]
-        for half in "LR":
-            g = geom[half]
-            vx = g["anchor_proj"][0] + g["inward"][0] * lg["vertex_inset_mm"] + g["e_back"][0] * off
-            vy = g["anchor_proj"][1] + g["inward"][1] * lg["vertex_inset_mm"] + g["e_back"][1] * off
-            pts = [(vx + g["inward"][0] * px + g["e_back"][0] * py,
-                    vy + g["inward"][1] * px + g["e_back"][1] * py) for px, py in wcv]
-            row.append(round(min(ol.dist_to_poly(g["open_pts"], p)
-                                 for p in pts) - lg["stroke_mm"] / 2, 2))
-        table.append(row)
-    derived["gull_vertex_offset_mm"] = lg["vertex_offset_mm"]
-    derived["gull_span_mm"] = lg["wing_span_mm"]
-    derived["gull_clearance_table"] = {
-        "_doc": "[offset_mm, clearance_L, clearance_R] at span; chosen offset marked",
-        "span": lg["wing_span_mm"], "chosen_offset": lg["vertex_offset_mm"],
-        "rows": table}
     for l in logs:
         print("[geom]", l)
     bpy.context.scene["chasm_geom_log"] = "\n".join(logs)
@@ -1480,6 +1533,7 @@ def build(design):
     os.makedirs(os.path.join(HERE, "out"), exist_ok=True)
     with open(os.path.join(HERE, "out", "derived.json"), "w") as fp:
         json.dump(derived, fp, indent=1)
+    rev2_case.write_solidworks_handoff(D,keys,geom,derived,os.path.join(HERE,"out","solidworks_handoff.json"))
 
     CTX = {"design": D, "keys": keys, "geom": geom, "colls": colls,
            "derived": derived, "mats": mats}
@@ -1516,26 +1570,27 @@ def build_hub(D, mats, coll, cut, scene_coll, geom):
         cfaces = [tuple(reversed(range(nn))), tuple(range(nn, 2 * nn))]
         cfaces += [(i2, (i2 + 1) % nn, (i2 + 1) % nn + nn, i2 + nn) for i2 in range(nn)]
         bool_diff(shell, new_obj(f"hub_c_usb{i}", cverts, cfaces, cut))
-        sverts = []
-        sh_pts = rounded_rect(u["shell_mm"][0], u["shell_mm"][1],
-                              min(1.4, u["shell_mm"][1] / 2), 4)
-        for dpt in (Dd / 2 - u["recess_mm"], Dd / 2 - u["recess_mm"] - 4.0):
-            for sx, sy in sh_pts:
-                sverts.append((x + sx, dpt, hc["usb_c"]["z_mm"] + sy))
-        sfaces = [tuple(reversed(range(nn))), tuple(range(nn, 2 * nn))]
-        sfaces += [(i2, (i2 + 1) % nn, (i2 + 1) % nn + nn, i2 + nn) for i2 in range(nn)]
-        new_obj(f"hub_usb_shell{i}", sverts, sfaces, coll, mats[u["material_shell"]])
-        dark = [(x + sx, Dd / 2 - u["recess_mm"] - 4.05, hc["usb_c"]["z_mm"] + sy)
+        # H7: hollow receptacle ring, open front, tongue ~1 mm recessed
+        fy = Dd / 2 - u["recess_mm"]
+        o_pts = rounded_rect(u["shell_mm"][0], u["shell_mm"][1],
+                             min(1.4, u["shell_mm"][1] / 2), 4)
+        i_pts = rounded_rect(u["shell_mm"][0] - 0.6, u["shell_mm"][1] - 0.6,
+                             min(1.1, (u["shell_mm"][1] - 0.6) / 2), 4)
+        stadium_ring(f"hub_usb_shell{i}", o_pts, i_pts, 0.0, -4.0,
+                     lambda sx, sy, d: (x + sx, fy + d,
+                                        hc["usb_c"]["z_mm"] + sy),
+                     coll, mats[u["material_shell"]])
+        dark = [(x + sx, fy - 4.05, hc["usb_c"]["z_mm"] + sy)
                 for sx, sy in rounded_rect(u["opening_mm"][0] - 0.5,
                                            u["opening_mm"][1] - 0.5, 1.2, 3)]
         new_obj(f"hub_usb_dark{i}", dark, [tuple(range(len(dark)))], coll,
                 mats["usb_dark"])
-        # tongue: small dark tab inside the receptacle (visible in 06b)
-        tp = rounded_rect(6.0, 0.7, 0.3, 3)
+        # tongue: small dark tab ~1 mm behind the shell front (visible in 06b)
+        tp = rounded_rect(6.7, 0.7, 0.3, 3)
         tverts = []
-        for dpt in (Dd / 2 - u["recess_mm"] - 0.6, Dd / 2 - u["recess_mm"] - 2.6):
+        for dpt in (fy - 1.0, fy - 3.0):
             for sx2, sy2 in tp:
-                tverts.append((x + sx2, dpt, hc["usb_c"]["z_mm"] + sy2 - 0.35))
+                tverts.append((x + sx2, dpt, hc["usb_c"]["z_mm"] + sy2))
         ntp = len(tp)
         tfaces = [tuple(reversed(range(ntp))), tuple(range(ntp, 2 * ntp))]
         tfaces += [(i2, (i2 + 1) % ntp, (i2 + 1) % ntp + ntp, i2 + ntp)
@@ -1725,6 +1780,65 @@ def build_studio(D, mats, coll):
         scrim.rotation_euler = (math.pi, 0, 0)   # face down
         recalc_normals(me5)
         scrim.visible_camera = False
+
+    # H2: reflection card - big emissive ceiling for polished metal seen at
+    # low angles (the stowed weight on the flipped underside); glossy rays only
+    rc = st.get("reflect_card")
+    if rc:
+        rw, rh = rc["size_m"]
+        me6 = bpy.data.meshes.new("reflect_card")
+        me6.from_pydata([(-rw / 2, -rh / 2, 0), (rw / 2, -rh / 2, 0),
+                         (rw / 2, rh / 2, 0), (-rw / 2, rh / 2, 0)],
+                        [], [(0, 1, 2, 3)])
+        rm = bpy.data.materials.new("reflect_card")
+        nt6 = rm.node_tree
+        nt6.nodes.clear()
+        em6 = nt6.nodes.new("ShaderNodeEmission")
+        em6.inputs["Strength"].default_value = rc["emission_w"]
+        em6.inputs["Color"].default_value = (0.9, 0.92, 0.95, 1)
+        out6 = nt6.nodes.new("ShaderNodeOutputMaterial")
+        nt6.links.new(em6.outputs[0], out6.inputs["Surface"])
+        me6.materials.append(rm)
+        card3 = bpy.data.objects.new("reflect_card", me6)
+        coll.objects.link(card3)
+        card3.location = rc["pos"]
+        card3.rotation_euler = (math.pi, 0, 0)   # face down
+        recalc_normals(me6)
+        card3.visible_camera = False
+        card3.visible_diffuse = False
+        card3.visible_transmission = False
+        card3.visible_shadow = False
+        for attr in ("visible_scatter", "visible_volume_scatter"):
+            try:
+                setattr(card3, attr, False)
+            except AttributeError:
+                pass
+
+    # H5: low front fill card - lifts the case shadow on the desk under the
+    # tented half in 03b (the dark region was the seamless, not geometry)
+    fl = st.get("fill_low")
+    if fl:
+        fw, fh = fl["size_m"]
+        me7 = bpy.data.meshes.new("fill_low")
+        me7.from_pydata([(-fw / 2, 0, -fh / 2), (fw / 2, 0, -fh / 2),
+                         (fw / 2, 0, fh / 2), (-fw / 2, 0, fh / 2)],
+                        [], [(0, 1, 2, 3)])
+        fm = bpy.data.materials.new("fill_low")
+        nt7 = fm.node_tree
+        nt7.nodes.clear()
+        em7 = nt7.nodes.new("ShaderNodeEmission")
+        em7.inputs["Strength"].default_value = fl["emission_w"]
+        em7.inputs["Color"].default_value = (0.93, 0.94, 0.96, 1)
+        out7 = nt7.nodes.new("ShaderNodeOutputMaterial")
+        nt7.links.new(em7.outputs[0], out7.inputs["Surface"])
+        me7.materials.append(fm)
+        card4 = bpy.data.objects.new("fill_low", me7)
+        coll.objects.link(card4)
+        card4.location = fl["pos"]
+        # face the set centre (flat/together area)
+        card4.rotation_euler = (Vector((0.0, 0.0, 0.03)) -
+                              card4.location).to_track_quat('Z', 'Y').to_euler()
+        card4.visible_camera = False
 
     # gradient card: emission ramp so polished metal reflects a gradient
     gc = st.get("grad_card")

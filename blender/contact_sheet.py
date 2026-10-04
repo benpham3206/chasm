@@ -1,16 +1,22 @@
-"""3x2 contact sheet of the v1 drafts -> renders/review/v1_contact.jpg
+"""3x3 contact sheet of the eight rev2 drafts -> renders/review/v2_contact.jpg
 
     python blender/contact_sheet.py
 """
 import os
-from PIL import Image, ImageDraw
+try:
+    from PIL import Image, ImageDraw
+except ModuleNotFoundError:
+    import subprocess
+    import sys
+    script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'contact_sheet_windows.ps1')
+    sys.exit(subprocess.call(['powershell.exe', '-NoProfile', '-File', script]))
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-SRC = os.path.join(ROOT, "renders", "stills", "v1", "draft")
-OUT = os.path.join(ROOT, "renders", "review", "v1_contact.jpg")
+SRC = os.path.join(ROOT, "renders", "stills", "v2", "draft")
+OUT = os.path.join(ROOT, "renders", "review", "v2_contact.jpg")
 
-NAMES = ["01_hero", "02_top", "03_plinth", "03b_tent", "04_gull", "05_underside",
+NAMES = ["01_hero", "02_top", "03_plinth", "04_macro_legends", "05_macro_detail",
          "06_hub", "06b_hub_ports", "07_exploded"]
 CELL_W, CELL_H = 360, 450
 COLS = 3

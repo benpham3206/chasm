@@ -1,7 +1,7 @@
-"""Render the v1 shots. Builds once, re-poses per shot, auto-fits framing.
+"""Render the rev2 draft shots. Builds once, re-poses per shot, auto-fits framing.
 
     blender -b --factory-startup --python-exit-code 1 --python blender/render_shots.py -- \
-        [--shots 1,2,3,3b,4,5,6,6b,7] [--draft|--final]
+        [--shots 1,2,3,4,5,6,6b,7] [--draft|--final]
 
 Per-shot spec in design.json "shots": pose, view {az_deg, el_deg} (az 0 = front
 /-y side, + toward +x), lens_mm or ortho:true, fit {subjects [collection names
@@ -10,8 +10,8 @@ focus_mm/plinth_xy. The camera aims at the subjects' world bbox centre, the
 distance (or ortho_scale) is binary-searched so the larger projected extent ==
 fill, then shift_x/y centres the bbox (3 iterations).
 
-Outputs renders/stills/v1/{draft|final}/NN_<name>.png + times.json (rewritten
-after EVERY shot), and saves blender/chasm_v1.blend (flat pose) at the end.
+Outputs renders/stills/v2/{draft|final}/NN_<name>.png + times.json (merged
+after EVERY shot), and saves blender/chasm_v2.blend (flat pose) at the end.
 """
 import bpy, json, os, sys, time, math, fnmatch
 from mathutils import Vector, Matrix
@@ -20,9 +20,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 import build_scene as bs
+import rev2_environment as env
 
-SHOT_ORDER = ["1_hero", "2_top", "3_plinth", "3b_tent", "4_gull",
-              "5_underside", "6_hub", "6b_hub_ports", "7_exploded"]
+SHOT_ORDER = ["1_hero", "2_top", "3_plinth", "4_macro_legends",
+              "5_macro_detail", "6_hub", "6b_hub_ports", "7_exploded"]
 
 MM = 0.001
 
@@ -193,8 +194,12 @@ def set_camera(shot, ctx):
         if foc is None:
             foc = bpy.data.objects.new("focus", None)
             bpy.context.scene.collection.objects.link(foc)
-        foc.location = (Vector(tuple(t * MM for t in shot["focus_mm"]))
-                        if shot.get("focus_mm") else ctr)
+        if shot.get("focus_subject"):
+            target = bpy.data.objects[shot["focus_subject"]]
+            foc.location = target.matrix_world @ Vector((0,0,max(c[2] for c in target.bound_box)))
+        else:
+            foc.location = (Vector(tuple(t * MM for t in shot["focus_mm"]))
+                            if shot.get("focus_mm") else ctr)
         cam.dof.focus_object = foc
     else:
         cam.dof.use_dof = False
@@ -239,7 +244,7 @@ def fit_plinth(shot, ctx):
     pts = plan_pts(subj, ctx)
     x0 = min(p.x for p in pts); x1 = max(p.x for p in pts)
     y0 = min(p.y for p in pts); y1 = max(p.y for p in pts)
-    margin = 25.0 * MM  # G5: 40 -> 25
+    margin = ctx["design"]["studio"]["plinth_margin_mm"] * MM
     need_w = (x1 - x0) + 2 * margin
     need_d = (y1 - y0) + 2 * margin
     pw, pd, ph = ctx["design"]["studio"]["plinth_mm"]
@@ -255,6 +260,35 @@ def fit_plinth(shot, ctx):
     print(f"[geom] plinth {need_w*1000:.0f}x{need_d*1000:.0f} mm at "
           f"({pcx*1000:.0f},{pcy*1000:.0f})")
     return ph
+
+
+def stack_sep_check(s, cam_ob, ctx):
+    """H3: exploded-view stacks (L / R / Hub) must not overlap in frame;
+    pairwise gap >= 3% of frame width."""
+    bbs = {}
+    for cn in ("L", "R", "Hub"):
+        pts = []
+        for o in ctx["colls"][cn].all_objects:
+            if o.type != 'MESH' or o.hide_render:
+                continue
+            for c in o.bound_box:
+                pts.append(o.matrix_world @ Vector(c))
+        x0, x1, y0, y1 = proj(pts, s, cam_ob)
+        bbs[cn] = (x0, y0, x1, y1)
+    for a in ("L", "R", "Hub"):
+        for b in ("L", "R", "Hub"):
+            if a >= b:
+                continue
+            ax0, ay0, ax1, ay1 = bbs[a]
+            bx0, by0, bx1, by1 = bbs[b]
+            xg = max(ax0 - bx1, bx0 - ax1)
+            yg = max(ay0 - by1, by0 - ay1)
+            sep = max(xg, yg)
+            print(f"[geom] explode sep {a}-{b}: {sep:.3f} "
+                  f"(x {xg:.3f}, y {yg:.3f})")
+            assert sep >= 0.03, \
+                f"exploded stacks {a}/{b} overlap in frame (sep {sep:.3f})"
+    return bbs
 
 
 def img_stats(path):
@@ -284,7 +318,16 @@ def img_stats(path):
 
 
 def write_times(outdir, times):
-    with open(os.path.join(outdir, "times.json"), "w") as fp:
+    # H8: merge into the existing file so subset --shots runs keep prior entries
+    path = os.path.join(outdir, "times.json")
+    if os.path.exists(path):
+        try:
+            old = json.load(open(path))
+            old.update(times)
+            times = old
+        except Exception:
+            pass
+    with open(path, "w") as fp:
         json.dump(times, fp, indent=1)
 
 
@@ -292,11 +335,12 @@ def render_shots(which, draft=True):
     D = json.load(open(os.path.join(HERE, "design.json"), encoding="utf-8"))
     bpy.context.preferences.filepaths.temporary_directory = os.path.join(HERE, "tmp")
     ctx = bs.build(D)
+    env.build(D, ctx, bs)
     setup_render(D, draft)
     print("[units] scale_length", bpy.context.scene.unit_settings.scale_length,
           bpy.context.scene.unit_settings.length_unit)
     tag = "draft" if draft else "final"
-    outdir = os.path.join(ROOT, "renders", "stills", "v1", tag)
+    outdir = os.path.join(ROOT, "renders", "stills", "v2", tag)
     os.makedirs(outdir, exist_ok=True)
     plinth = bpy.data.objects.get("plinth")
     ph = D["studio"]["plinth_mm"][2]
@@ -304,6 +348,8 @@ def render_shots(which, draft=True):
     for n in which:
         key = next(k for k in SHOT_ORDER if k.split("_", 1)[0] == str(n))
         shot = D["shots"][key]
+        bpy.context.scene.cycles.samples=shot.get('draft_samples',D['render']['draft_samples']) if draft else D['render']['final_samples']
+        env.select(shot.get("environment", "studio"), D, ctx, shot)
         for hcol in ("L", "R", "Hub"):
             ctx["colls"][hcol].hide_render = hcol in shot.get("hide", [])
         bs.set_pose(shot["pose"], ctx=ctx)          # pose first so bbox is real
@@ -316,6 +362,12 @@ def render_shots(which, draft=True):
                 support = fit_plinth(shot, ctx)
                 bs.set_pose(shot["pose"], support_z_mm=support, ctx=ctx)
         cam_info = set_camera(shot, ctx)
+        # per-shot exposure override (e.g. 06b's distant lit floor)
+        bpy.context.scene.view_settings.exposure = \
+            shot.get("exposure", D["environments"].get(shot.get("environment"), {}).get("exposure", D["render"]["exposure"]))
+        if shot["pose"] == "exploded":
+            stack_sep_check(bpy.context.scene, bpy.data.objects["shot_cam"],
+                            ctx)
         num = key.split('_', 1)[0]
         name = (f"{int(num):02d}" if num.isdigit() else f"0{num}") + \
                "_" + key.split('_', 1)[1]                     # 6 -> 06_, 6b -> 06b_
@@ -324,6 +376,12 @@ def render_shots(which, draft=True):
         bpy.ops.render.render(write_still=True)
         clip, bg, bg_r, bg_b = img_stats(bpy.context.scene.render.filepath)
         frame_ok = all(0.04 <= v <= 0.96 for v in cam_info["frame"])
+        if key == "1_hero":
+            # Rev2: closer full setup with safe outer margin.
+            fx0, fy0, fx1, fy1 = cam_info["frame"]
+            fw, fh = fx1 - fx0, fy1 - fy0
+            assert 0.84 <= fw <= 0.92, f"01 width frac {fw:.3f} out of range"
+            assert fh >= 0.40, f"01 height frac {fh:.3f} < 0.40"
         times[key] = {"seconds": round(time.time() - t0, 1),
                       **cam_info, "frame_ok": frame_ok,
                       "samples": bpy.context.scene.cycles.samples,
@@ -341,13 +399,18 @@ def render_shots(which, draft=True):
     if plinth:
         plinth.hide_render = True
     bs.set_pose("flat", ctx=ctx)
-    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(ROOT, "blender", "chasm_v1.blend"))
+    env.select("desk", D, ctx)
+    for cn in ('L','R','Hub'):
+        ctx['colls'][cn].hide_render=False
+    set_camera(D['shots']['1_hero'],ctx)
+    bpy.context.scene.view_settings.exposure = D['shots']['1_hero'].get('exposure', D['environments']['desk']['exposure'])
+    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(ROOT, "blender", "chasm_v2.blend"))
     print("[done] blend saved")
 
 
 if __name__ == "__main__":
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
-    which = [1, 2, 3, "3b", 4, 5, 6, "6b", 7]
+    which = [1, 2, 3, 4, 5, 6, "6b", 7]
     draft = True
     for i, a in enumerate(argv):
         if a == "--shots":

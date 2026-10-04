@@ -9,3 +9,16 @@ blender/devin-session-*.md
 # third-party photos (copyright) and personal photos
 ref/style/alexotos/
 ref/tenting/*.jpg
+# third-party media and tools (copyright / size): keep local only
+ref/shape/**/*.jpg
+ref/shape/**/*.jpeg
+ref/shape/**/*.png
+ref/shape/**/*.webp
+ref/shape/**/_video/
+ref/shape/**/*.html
+ref/modmusings-xray/
+ref/reviews/neo75-img/
+ref/reviews/_yt_dlp/
+ref/reviews/stream/
+ref/reviews/*.vtt
+ref/style/user-*/*.png

@@ -1,19 +1,21 @@
-# NEXT — F-pass R1..R12 complete, awaiting lead review
+﻿# Rev2 draft checkpoint (Sol)
 
-9 drafts at renders/stills/v1/draft/ + v1_contact.jpg (3x3). chasm_v1.blend saved.
+Done: eight inspected 640x800 draft PNGs in renders/stills/v2/draft, renders/review/v2_contact.jpg, blender/chasm_v2.blend saved in the full flat hero setup, parametric SolidWorks outline/section handoff in blender/out/solidworks_handoff.json. Geometry from design.json + keys_8.json and scripts. Validation evidence: blender/out/rev2_verification.json; logs in blender/tmp/rev2_verify_final.log, rev2_opening_final.log, rev2_batch2.log, rev2_dark_final.log.
 
-## Deviations from spec
-- plate.inset_mm: spec 4.7 -> 4.4 (opening min dist to outline is L 4.72 / R 4.58;
-  4.7 fails its own assert). Gasket tabs reach 1.8 mm into the wall w/ notches.
-- R10: contrast target >=20 required SMOKED near-opaque caps (clear cap tops
-  saturate ~236 sRGB regardless of tint). Chose variant N: cap base
-  [0.05,0.06,0.08] trans 0.35 rough 0.45 + legend emission 2.2 + glyph proud
-  0.05 mm -> contrast 20.4. Tradeoff: caps no longer clear X-Ray.
-- R2: front/back arm lengths + phi solved (front shorter). L: 31.4/48.6 mm,
-  skew 15.5 deg, phi -24.8; R: 32.1/47.9, skew 14.3, phi 24.5; both bar ends
-  at desk z +/-0.000.
+Half-done: none in the authorized draft build. Literal vendor tooling/font/icon fidelity and mechanical production validation remain outside the verified result. No finals, commit or push. Stop for Claude/Ben review.
 
-## Evidence (blender/tmp/)
-dbg_ustowed/udeployed/hub_gull/legends/exploded.png, look_bottom_A000/B030.png,
-look_legend_{A..N}.png + _mask.png, prod_1_hero/2_top.png + _mask.png,
-mask_stats.py, look_legend.py, prod_stats.py, design_rebuild.py, design_write.py
+Changed source: design.json, outline.py, build_scene.py, render_shots.py, contact_sheet.py; added rev2_opening.py, regenerate_opening.py, rev2_case.py, rev2_keycaps.py, rev2_environment.py, contact_sheet_windows.ps1 and verify_rev2.py. Original dirty checkout preserved; script/config rollback copies in blender/tmp/rev2_baseline. No packages installed.
+
+Reference substitutions: Bahnschrift plus Segoe UI Symbol, reference-matched Cherry row sculpt and vector kit-style icons. Macro keys use novelties. Layout has no Esc key; its icon mapping is provided without replacing an existing key. Leaf dimensions/count and R135 underside are parametric concept estimates, not vendor CAD. Combined cap skirt wall approximately1.3mm (1.1mm body +0.18mm skin); frost/white legends intentionally subtle, clearest in04.
+
+Measured render seconds: 01 5.9 / 02 5.2 / 03 4.3 / 04 14.4 / 05 7.4 / 06 4.3 / 06b 4.3 / 07 5.5; sum51.3, excluding build. 32spp with denoise; 04 uses64spp. All framing checks passed.
+
+Exact reproducible draft commands, only if revision/rebuild is requested:
+```powershell
+& 'D:/Apps/Blender/current/blender.exe' -b --factory-startup --python-exit-code 1 --python blender/regenerate_opening.py
+& 'D:/Apps/Blender/current/blender.exe' -b --factory-startup --python-exit-code 1 --python blender/render_shots.py -- --draft
+python blender/contact_sheet.py
+& 'D:/Apps/Blender/current/blender.exe' -b blender/chasm_v2.blend --python-exit-code 1 --python blender/verify_rev2.py
+```
+
+Open review: case silhouette/shared family; white frost and white-on-white legend contrast; right gull bay; macro compositions; exploded detail readability. Await Claude/Ben direction. Do not start finals automatically.

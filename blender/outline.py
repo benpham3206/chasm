@@ -19,17 +19,36 @@ def load():
     kv = knob_virtual_key(design, keys)
     if kv:
         keys["keys"].append(kv)
+    lv = logo_virtual_key(design, keys)
+    if lv:
+        keys["keys"].append(lv)
     return design, keys
 
 
 def knob_xy(design, keys):
-    """Keyboard knob centre (half frame, mm): right of the anchor key's pitch box."""
+    """Keyboard knob centre from the layout's authoritative encoder slot."""
     kb = design.get("knob_kb")
     if not kb:
         return None
-    a = next(k for k in keys["keys"] if k["id"] == kb["anchor"])
-    x = a["x_mm"] + a["w_u"] * keys["unit_mm"] / 2 + kb["gap_after_mm"] + kb["d_mm"] / 2
-    return kb["half"], x, a["y_mm"]
+    enc = next(e for e in keys["encoders"] if e["half"] == kb["half"])
+    return enc["half"], enc["x_mm"], enc["y_mm"]
+
+
+def logo_xy(design, keys):
+    lg = design["logo"]
+    right = next(k for k in keys["keys"] if k["id"] == lg["right_key"])
+    up = next(k for k in keys["keys"] if k["id"] == lg["up_key"])
+    return right["x_mm"] + lg["vertex_x_offset_mm"], up["y_mm"] + lg["vertex_y_offset_mm"]
+
+
+def logo_virtual_key(design, keys):
+    """Solid top reserved above Right; this keepout never enters the opening."""
+    if not design["logo"].get("full_right"):
+        return None
+    x, y = logo_xy(design, keys)
+    return {"id": "RLOGO", "half": "R", "label": "LOGO", "w_u": design["logo"]["keepout_mm"] / keys["unit_mm"],
+            "x_mm": x, "y_mm": y + design["logo"]["keepout_y_offset_mm"], "rot_deg": 0.0,
+            "stab": False, "virtual": True, "solid_top": True}
 
 
 def knob_virtual_key(design, keys):
@@ -118,36 +137,10 @@ def dist_to_poly(poly, p):
     return best
 
 
-def opening(design, keys, half, px=0.05):
-    """Top-frame opening that hugs the key stagger (Duo-style), as CCW polyline mm.
-    Recipe (SolidWorks: same steps on sketch regions): union of key pitch boxes grown by
-    opening_clearance; morphological closing with opening_close_r (fills inter-block wedges
-    and gaps < 2r); convex corners rounded to opening_r_min. Raster at `px` mm, then
-    simplified to opening_tol. Needs numpy/scipy/cv2 -> run in system Python, not Blender."""
-    import numpy as np, cv2
-    from scipy.ndimage import distance_transform_edt as edt
-    c = design["case"]; unit = keys["unit_mm"]; cl = c["opening_clearance_mm"]
-    ks = select(keys["keys"], half, "all")
-    pts = [p for k in ks for p in key_rect(k, unit)]
-    pad = c["opening_close_r_mm"] + 5
-    x0, y0 = min(p[0] for p in pts) - pad, min(p[1] for p in pts) - pad
-    W = int((max(p[0] for p in pts) + pad - x0) / px); H = int((max(p[1] for p in pts) + pad - y0) / px)
-    m = np.zeros((H, W), np.uint8)
-    for k in ks:
-        g = dict(k, w_u=k["w_u"] + 2 * cl / unit)
-        r = [((x - x0) / px, (y - y0) / px) for x, y in key_rect(g, unit, unit + 2 * cl)]
-        cv2.fillPoly(m, [np.round(np.array(r) * 16).astype(np.int32)], 1, lineType=cv2.LINE_8, shift=4)
-    R = c["opening_close_r_mm"] / px; r1 = c["opening_r_min_mm"] / px
-    m = edt(m == 0) <= R            # dilate
-    m = edt(m) > R                  # erode -> closing
-    m = edt(m) > r1                 # erode
-    m = edt(m == 0) <= r1           # dilate -> convex corners >= r_min
-    cs, hier = cv2.findContours(m.astype(np.uint8), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
-    assert len(cs) == 1, f"{half}: opening has {len(cs)} regions/holes, expected 1"
-    cnt = cv2.approxPolyDP(cs[0], c["opening_tol_mm"] / px, True)[:, 0, :]
-    poly = [(x0 + (u + 0.5) * px, y0 + (v + 0.5) * px) for u, v in cnt]
-    a = sum(x1 * y2 - x2 * y1 for (x1, y1), (x2, y2) in zip(poly, poly[1:] + poly[:1]))
-    return poly if a > 0 else poly[::-1]
+def opening(design, keys, half, px=None):
+    """Key-stagger opening, generated with bundled NumPy and standard Python."""
+    from rev2_opening import opening as generate
+    return generate(design, keys, half, px)
 
 
 def check(design, keys):
@@ -156,7 +149,7 @@ def check(design, keys):
     for half in "LR":
         edges = design["case"]["outline"][half]
         poly, V, L = outline(edges, keys["keys"], half, unit)
-        corners = [p for k in select(keys["keys"], half, "all") for p in key_rect(k, unit)]
+        corners = [p for k in select(keys["keys"], half, "all") if not k.get("solid_top") for p in key_rect(k, unit)]
         assert all(point_in(poly, p) for p in corners), f"{half}: key outside outline"
         bez = min(dist_to_poly(poly, p) for p in corners)
         assert bez >= design["case"]["bezel_min_mm"] - 0.05, f"{half}: bezel {bez:.2f} < min"
@@ -171,39 +164,12 @@ def check(design, keys):
 
 
 if __name__ == "__main__":
-    design, keys = load()
-    rep = check(design, keys)
-    print(json.dumps(rep, indent=1))
-    from PIL import Image, ImageDraw
-    S, W, H = 5, 230, 140
-    img = Image.new("RGB", (2 * W * S, H * S), "white"); dr = ImageDraw.Draw(img)
-    unit = keys["unit_mm"]; c = design["case"]
-    for i, half in enumerate("LR"):
-        T = lambda p, i=i: ((p[0] + W / 2 + i * W) * S, (H / 2 - p[1]) * S)
-        for k in select(keys["keys"], half, "all"):
-            dr.polygon([T(p) for p in key_rect(k, unit)], outline=(170, 170, 220))
-        edges = c["outline"][half]
-        for inset, col in ((0, "black"), (c["bezel_min_mm"] - c["opening_clearance_mm"], (200, 60, 60)), (c["wall_t_mm"], (60, 160, 60))):
-            poly, _, _ = outline(edges, keys["keys"], half, unit, inset=inset, r_min=c["opening_r_min_mm"] if inset else 0)
-            dr.line([T(p) for p in poly + poly[:1]], fill=col, width=2)
-
-    ops = {}
-    for half in "LR":
-        op = opening(design, keys, half); ops[half] = [[round(x, 3), round(y, 3)] for x, y in op]
-        poly, _, _ = outline(c["outline"][half], keys["keys"], half, unit)
-        corners = [p for k in select(keys["keys"], half, "all") for p in key_rect(k, unit)]
-        assert all(point_in(op, p) for p in corners), f"{half}: key outside opening"
-        assert min(dist_to_poly(op, p) for p in corners) >= c["opening_clearance_mm"] - 0.1, f"{half}: opening clearance"
-        frame = min(dist_to_poly(poly, p) for p in op)
-        assert frame >= c["opening_frame_min_mm"], f"{half}: frame {frame:.2f} mm < opening_frame_min_mm"
-        print(half, "opening pts", len(op), "min frame width", round(frame, 2))
-        T = lambda p, i="LR".index(half): ((p[0] + W / 2 + i * W) * S, (H / 2 - p[1]) * S)
-        dr.line([T(p) for p in op + op[:1]], fill=(40, 40, 230), width=2)
-    os.makedirs(os.path.join(HERE, "out"), exist_ok=True)
-    src = json.dumps([design["case"], keys["keys"]], sort_keys=True)
-    import hashlib
-    json.dump({"_doc": "top-frame opening polylines, mm, half frame, CCW; generated by blender/outline.py (do not edit)",
-               "source_sha1": hashlib.sha1(src.encode()).hexdigest(), "L": ops["L"], "R": ops["R"]},
-              open(os.path.join(HERE, "out", "opening.json"), "w"), indent=0)
-    os.makedirs(os.path.join(HERE, "tmp"), exist_ok=True)
-    img.save(os.path.join(HERE, "tmp", "outline_check.png"))
+    import importlib.util
+    import subprocess
+    import sys
+    script = os.path.join(HERE, 'regenerate_opening.py')
+    if importlib.util.find_spec('numpy') is None:
+        sys.exit(subprocess.call(['D:/Apps/Blender/current/blender.exe', '-b', '--factory-startup',
+            '--python-exit-code', '1', '--python', script]))
+    import runpy
+    runpy.run_path(script, run_name='__main__')

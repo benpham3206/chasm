@@ -1,5 +1,5 @@
 {
- "_doc": "chasm v1 shape study. All lengths mm, angles deg, unless the key says otherwise. Frame per half = keys_8.json frame (x right, y back, origin key-area bbox centre); z up, z=0 = case bottom face (before feet). Blender scene units: metres (mm * 0.001).",
+ "_doc": "chasm rev2 draft study. Dimensions mm / angles deg unless named otherwise. Geometry and CAD handoff derive from this file plus keys_8.json; estimates documented beside values.",
  "inputs": {
   "keys": "cad/layout/out/keys_8.json",
   "gull_variant": "C gull",
@@ -18,24 +18,24 @@
   "_note": "gull = cubic Bezier from vertex (0,0) via c1, c2 to tip, right wing, y up (brand/gull_logo.py); left wing = mirror in x"
  },
  "case": {
-  "height_mm": 24.0,
-  "_height": "flat case, bottom face to top face of the frost frame",
-  "bottom_t_mm": 3.0,
-  "_bottom_t": "clear polished acrylic bottom, z 0..3",
-  "wall_t_mm": 4.0,
-  "_wall_t": "frost wall thickness, outline inset -> cavity",
-  "lip_bottom_z_mm": 17.5,
-  "_lip_bottom_z": "underside of the top frame lip (cavity ceiling); plate top 16.1 + 1.4 gasket gap",
+  "height_mm": 19.3,
+  "_height": "19.3mm local deck; pose translation calibrates lowest front deck edge to19.3mm above desk on each half.",
+  "bottom_t_mm": 2.4,
+  "_bottom_t": "clear acrylic floor plate thickness beneath the stainless weight",
+  "wall_t_mm": 3.2,
+  "_wall_t": "frost shell wall and lower skirt nominal thickness",
+  "lip_bottom_z_mm": 14.3,
+  "_lip_bottom_z": "shell cavity ceiling; plate top 12.8 plus 1.5 mm leaf/pad clearance",
   "bezel_min_mm": 5.5,
-  "_bezel_min": "self-check: min distance key pitch box -> outline (corner arcs cut the 6/7 mm sides to ~5.8)",
+  "_bezel_min": "Minimum through rounded support-line corners; nominal straight bezel7.5mm both halves.",
   "opening_clearance_mm": 1.0,
   "_opening_clearance": "top opening = outline edges pulled back to (bezel - clearance); i.e. ~1 mm around the pitch boxes",
   "opening_inset_mm": 5.0,
   "_opening_inset": "SUPERSEDED for the top frame by the stagger-hugging opening (blender/out/opening.json from outline.opening); kept only as a fallback",
   "opening_r_min_mm": 1.0,
   "_opening_r_min": "min corner radius of the opening (CNC inner radius)",
-  "edge_fillet_mm": 0.5,
-  "_edge_fillet": "round on every outer/opening edge of the frost shell",
+  "edge_fillet_mm": 1.1,
+  "_edge_fillet": "shared softened edge radius on both halves for consistent shell family",
   "outline": {
    "_doc": "edges CCW. n_deg = outward normal; keys = which keys the line must clear (all | straight | angled | id list | not:id list); bezel = gap from the furthest key pitch box; r = fillet at the END of this edge (vertex to next edge)",
    "L": [
@@ -43,50 +43,50 @@
      "name": "outer",
      "n_deg": 180,
      "keys": "all",
-     "bezel": 7.0,
-     "r": 7.0
+     "bezel": 7.5,
+     "r": 8.0
     },
     {
      "name": "front_straight",
      "n_deg": 270,
      "keys": "straight",
-     "bezel": 6.0,
+     "bezel": 7.5,
      "r": 40.0
     },
     {
      "name": "front_angled",
      "n_deg": 262,
      "keys": "angled",
-     "bezel": 6.0,
+     "bezel": 7.5,
      "r": 10.0
     },
     {
      "name": "inner_chamfer",
      "n_deg": 322,
      "keys": "all",
-     "bezel": 7.0,
+     "bezel": 7.5,
      "r": 10.0
     },
     {
      "name": "inner",
      "n_deg": 356,
      "keys": "all",
-     "bezel": 7.0,
-     "r": 7.0
+     "bezel": 7.5,
+     "r": 8.0
     },
     {
      "name": "back_angled",
      "n_deg": 82,
      "keys": "all",
-     "bezel": 6.0,
+     "bezel": 7.5,
      "r": 60.0
     },
     {
      "name": "back_straight",
      "n_deg": 90,
      "keys": "straight",
-     "bezel": 6.0,
-     "r": 7.0
+     "bezel": 7.5,
+     "r": 8.0
     }
    ],
    "R": [
@@ -94,57 +94,57 @@
      "name": "inner",
      "n_deg": 184,
      "keys": "all",
-     "bezel": 7.0,
-     "r": 7.0
+     "bezel": 7.5,
+     "r": 8.0
     },
     {
      "name": "front_angled",
      "n_deg": 278,
      "keys": "angled",
-     "bezel": 6.0,
+     "bezel": 7.5,
      "r": 40.0
     },
     {
      "name": "front_straight",
      "n_deg": 270,
      "keys": "straight",
-     "bezel": 6.0,
-     "r": 7.0
+     "bezel": 7.5,
+     "r": 8.0
     },
     {
      "name": "outer_arrows",
      "n_deg": 0,
      "keys": "all",
-     "bezel": 7.0,
-     "r": 7.0
+     "bezel": 7.5,
+     "r": 8.0
     },
     {
      "name": "shoulder",
      "n_deg": 40,
-     "keys": "R16",
-     "bezel": 7.0,
+     "keys": "R16,RLOGO",
+     "bezel": 7.5,
      "r": 16.0
     },
     {
      "name": "outer_upper",
      "n_deg": 0,
-     "keys": "not:R14,R15,R16",
-     "bezel": 7.0,
-     "r": 7.0
+     "keys": "not:R14,R15,R16,RLOGO",
+     "bezel": 7.5,
+     "r": 8.0
     },
     {
      "name": "back_straight",
      "n_deg": 90,
      "keys": "straight",
-     "bezel": 6.0,
+     "bezel": 7.5,
      "r": 60.0
     },
     {
      "name": "back_angled",
      "n_deg": 98,
      "keys": "all",
-     "bezel": 6.0,
-     "r": 7.0
+     "bezel": 7.5,
+     "r": 8.0
     }
    ]
   },
@@ -153,42 +153,93 @@
   "opening_tol_mm": 0.02,
   "_opening_tol": "polyline simplification tolerance of the raster-derived opening",
   "opening_frame_min_mm": 4.5,
-  "_opening_frame_min": "self-check: min frost frame width between outline and opening"
+  "_opening_frame_min": "self-check: min frost frame width between outline and opening",
+  "_outline_rev2": "Both halves share 7.5mm support-line bezel and 8mm major convex radii. 40/60mm tangencies follow layout angle changes; arrow shoulder retains16mm blend.",
+  "lower_base": {
+   "_doc": "Parametric tucked lower skirt; the separate clear 2.4mm floor follows the rounded underside datum below the weight.",
+   "material": "clear_acrylic",
+   "_material": "polished clear lower skirt over the visible stainless weight",
+   "wall_t_mm": 2.4,
+   "_wall_t": "Lower skirt wall3.2mm; nested plan sections use explicit tucks and preserve the bezel.",
+   "seam_z_mm": 7.0,
+   "_seam_z": "upper shell / lower skirt reveal datum, shared by both halves",
+   "desk_clearance_mm": 0.55,
+   "_desk_clearance": "case-frame gap for the soft rubber support pads when a desk plane callback is supplied",
+   "bottom_front_z_mm": 0.55,
+   "_bottom_front_z": "fallback front underside height above local z=0 if no desk-plane callback is supplied",
+   "graduated_curve_radius_mm": 135.0,
+   "_graduated_curve_radius": "side-section tangent blend estimate within the visual 100-180 mm range from Evo75 frames",
+   "curve_start_fraction": 0.65,
+   "_curve_start_fraction": "start the physical circular side arc at 65 percent of half depth, leaving roughly the reference 50-75 mm rear blend run; the arc meets the rear edge at its tangent",
+   "seam_clearance_mm": 0.5,
+   "_seam_clearance": "reserved clearance only for downstream shell-fit checks; the underside loft itself follows desk_z",
+   "stations": [
+    {
+     "name": "seam",
+     "inset_mm": 0.0,
+     "z_offset_mm": 0.0,
+     "_note": "full-plan upper skirt ring at the continuous case reveal"
+    },
+    {
+     "name": "upper_blend",
+     "inset_mm": 0.8,
+     "z_offset_mm": 4.0,
+     "_note": "first tucked station under the upper shell with a gentle tangent transition"
+    },
+    {
+     "name": "lower_blend",
+     "inset_mm": 1.8,
+     "z_offset_mm": 2.1,
+     "_note": "intermediate contour station that softens the wedge through the side"
+    },
+    {
+     "name": "floor_edge",
+     "inset_mm": 2.6,
+     "z_offset_mm": 0.0,
+     "_note": "tucked lower perimeter meeting the separate clear floor plate"
+    }
+   ],
+   "_stations": "loft stations use the same generated plan arcs as the case outline at each exact design inset"
+  },
+  "opening_px_mm": 0.2,
+  "_opening_px": "Numpy/stdlib opening raster sample0.20mm; rounding/margins retain design clearances.",
+  "opening_sampling_guard_mm": 0.35,
+  "_opening_sampling_guard": "Extra0.35mm raster expansion compensates cell sampling and rounded pitch-box corners; measured actual opening clearance must stay>=1mm."
  },
  "stack": {
-  "_doc": "z of layer bottoms/tops in the half frame (z=0 case bottom face, before feet)",
+  "_doc": "Rev 2 layer z ranges in the half frame; z=0 is the local case bottom datum before pose transforms.",
   "bottom_z": [
    0.0,
-   3.0
+   2.4
   ],
-  "_bottom": "clear acrylic bottom",
+  "_bottom": "2.4 mm clear acrylic floor, separate from hollow lower skirt",
   "weight_z": [
-   3.0,
-   7.0
+   2.4,
+   5.4
   ],
-  "_weight": "polished stainless slab sits on the bottom",
+  "_weight": "3mm stainless above floor, updated to fit low front case.",
   "battery_z": [
-   3.0,
-   8.0
+   2.4,
+   6.6
   ],
-  "_battery": "LiPo pouch beside the weight (stepped cavity, cad-gates)",
+  "_battery": "4.2mm LiPo envelope beside weight, clear of PCB underside6.6.",
   "rf_module_z": [
-   7.5,
-   9.5
+   4.6,
+   6.6
   ],
-  "_rf_module": "RF module on the PCB underside, can faces down (visible through clear bottom)",
+  "_rf_module": "2mm RF module under PCB, uses plan keepout from weight.",
   "pcb_z": [
-   9.5,
-   11.1
+   6.6,
+   7.8
   ],
-  "_pcb": "1.6 mm white soldermask; 9.5 leaves ~2.5 mm for hot-swap sockets + foam above the weight",
+  "_pcb": "1.2mm white flex-cut PCB at6.6..7.8.",
   "plate_z": [
-   14.6,
-   16.1
+   11.3,
+   12.8
   ],
-  "_plate": "PP 1.5 mm; plate top - PCB top = 5.0 (MX)",
-  "cap_bottom_z": 22.1,
-  "_cap_bottom": "keycap skirt bottom = plate top + 6.0 (assumed seat height)"
+  "_plate": "1.5mm PP11.3..12.8; plate top minus PCB top=5mm MX seat.",
+  "cap_bottom_z": 18.8,
+  "_cap_bottom": "Plate top+6mm, Cherry skirt18.8."
  },
  "plate": {
   "inset_mm": 4.4,
@@ -199,8 +250,17 @@
  },
  "pcb": {
   "inset_mm": 5.5,
-  "_inset": "PCB outline = case outline inset",
-  "material": "pcb_white"
+  "_inset": "PCB outline remains inset from the case plan outline",
+  "material": "pcb_white",
+  "flex_cut": {
+   "_doc": "Paired through-slots adjacent to each spring support; cutter thickness crosses the 1.2 mm board.",
+   "slot_length_mm": 10.0,
+   "_slot_length": "estimated flex slot length parallel to each support edge",
+   "slot_width_mm": 0.8,
+   "_slot_width": "estimated PCB slot width, compatible with visible flex-cut style",
+   "pair_offset_mm": 2.4,
+   "_pair_offset": "normal offset from the support center to each slot center"
+  }
  },
  "switch": {
   "bottom_w_mm": 14.0,
@@ -263,7 +323,6 @@
     "h_mm": 9.4,
     "tilt_deg": 8.0,
     "labels": [
-     "M1",
      "`",
      "1",
      "2",
@@ -284,7 +343,6 @@
     "h_mm": 7.9,
     "tilt_deg": 4.0,
     "labels": [
-     "M2",
      "Tab",
      "Q",
      "W",
@@ -298,14 +356,14 @@
      "P",
      "[",
      "]",
-     "\\"
+     "\\",
+     "M1"
     ]
    },
    "R3": {
     "h_mm": 7.6,
     "tilt_deg": 0.0,
     "labels": [
-     "M3",
      "Caps",
      "A",
      "S",
@@ -318,7 +376,8 @@
      "L",
      ";",
      "'",
-     "Enter"
+     "Enter",
+     "M2"
     ]
    },
    "R4": {
@@ -326,10 +385,11 @@
     "tilt_deg": -5.0,
     "labels": "rest"
    },
-   "_doc": "h = height at top centre above the cap bottom; tilt = top normal tilted toward the user (-y); R4 = every other key"
+   "_doc": "h = height at top centre above the cap bottom; tilt = top normal tilted toward the user (-y); R4 = every other key",
+   "_macro_note": "Macro column lowered one row: M1 usesR2, M2R3, M3/M4R4."
   },
   "legend": {
-   "font": "C:/Windows/Fonts/segoeuib.ttf",
+   "font": "C:/Windows/Fonts/bahnschrift.ttf",
    "font_symbols": "C:/Windows/Fonts/seguisym.ttf",
    "alpha_size_mm": 3.6,
    "mod_size_mm": 2.2,
@@ -341,7 +401,7 @@
    "_margin": "from the top-surface edge: x, y (top-left for alphas, bottom-left for modifiers)",
    "depth_below_top_mm": -0.05,
    "thickness_mm": 0.5,
-   "_depth": "0.02 -> -0.05: glyph pokes 0.05 mm proud of the dished top (true double-shot; was hidden under the frost skin)",
+   "_depth": "Legacy glyph datum retained for v1 helpers; rev2 uses proud_mm and dish-conformed second-shot extrusion.",
    "text": {
     "Bksp": "Backspace",
     "Caps": "Caps Lock",
@@ -351,10 +411,295 @@
     "Right": "→",
     "Space": ""
    },
-   "_style": "alpha style = single char or M1-M4 (top-left); arrows centred; other multi-char labels = modifier (bottom-left)"
+   "_style": "Alphas and shifted number pairs top-left; icon modifiers/macros bottom-left; arrows centred. Custom kit-style vectors are used by rev2_keycaps.py.",
+   "_font_choice": "Bahnschrift selected for its clean geometric sans letterforms; Segoe UI Symbol supplies modifier and navigation glyph coverage. Existing font_cap_scale() measurement remains active for size calibration."
   },
-  "material": "abs_clear_frosted",
-  "legend_material": "legend_white"
+  "material": "xray_frost_skin",
+  "legend_material": "legend_white",
+  "rev2": {
+   "shell_wall_mm": 0.18,
+   "_shell_wall_mm": "Thin outer frosted skin thickness, leaving the underside shell visibly hollow.",
+   "body_wall_mm": 1.1,
+   "_body_wall_mm": "Opaque inner PBT body wall thickness under the clear skin.",
+   "body_inset_mm": 0.02,
+   "_body_inset_mm": "Small top inset of the white body from the clear skin.",
+   "body_base_inset_mm": 0.36,
+   "_body_base_inset_mm": "Inward offset at the skirt opening to expose the clear rim.",
+   "body_top_recess_mm": 0.18,
+   "_body_top_recess_mm": "Recess of the white body below the outside top surface.",
+   "dish_depth_mm": 0.5,
+   "_dish_depth_mm": "Cylindrical Cherry dish depth, curvature across X with cylinder axis along Y.",
+   "body_dish_depth_mm": 0.47,
+   "_body_dish_depth_mm": "White inner body follows the dish while staying below the clear shell.",
+   "top_shrink_mm": [
+    5.3,
+    3.6
+   ],
+   "_top_shrink_mm": "Top width and depth reductions from the key base; keeps the established 1u top size.",
+   "base_corner_mm": 0.8,
+   "_base_corner_mm": "Rounded plan corner radius at the skirt foot.",
+   "top_corner_mm": 1.6,
+   "_top_corner_mm": "Rounded plan corner radius at the Cherry top surface.",
+   "corner_segments": 8,
+   "_corner_segments": "Arc subdivisions per rounded corner for a smooth rendered perimeter.",
+   "wall_profile": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.035,
+     0.1,
+     0.1
+    ],
+    [
+     0.12,
+     0.02,
+     0.02
+    ],
+    [
+     0.58,
+     -0.04,
+     -0.03
+    ],
+    [
+     0.88,
+     -0.16,
+     -0.1
+    ],
+    [
+     0.965,
+     -0.1,
+     -0.06
+    ],
+    [
+     1.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "_wall_profile": "Normalized height, X swell and Y swell describe a restrained concave Cherry wall with a soft foot and shoulder.",
+   "top_edge_profile": [
+    [
+     1,
+     -0.14
+    ],
+    [
+     0.992,
+     -0.08
+    ],
+    [
+     0.975,
+     -0.02
+    ],
+    [
+     0.945,
+     0
+    ],
+    [
+     0.9,
+     0
+    ],
+    [
+     0.82,
+     0
+    ],
+    [
+     0.7,
+     0
+    ],
+    [
+     0.54,
+     0
+    ],
+    [
+     0.36,
+     0
+    ],
+    [
+     0.2,
+     0
+    ],
+    [
+     0.08,
+     0
+    ]
+   ],
+   "_top_edge_profile": "Top plan scale and rim elevation inmm;0.14mm rolled edge joins wall to cylindrical dish with shared mesh vertices.",
+   "legend_proud_mm": 0.06,
+   "_legend_proud_mm": "0.06mm raised white shot to reveal a fine shadow through frosted skin.",
+   "icon_stroke_mm": 0.19,
+   "_icon_stroke_mm": "Line weight for custom kit-style vector glyphs and novelty legends.",
+   "pair_base_size_mm": 3.6,
+   "_pair_base_size_mm": "Primary glyph size for two-level numeric and punctuation legends.",
+   "pair_shift_size_mm": 1.45,
+   "_pair_shift_size_mm": "Small shifted glyph size above its primary number or punctuation mark.",
+   "pair_line_gap_mm": 0.22,
+   "_pair_line_gap_mm": "Clear vertical gap between measured shifted and primary glyph bounds.",
+   "modifier_size_mm": 3.4,
+   "_modifier_size_mm": "Bottom-left icon legend size for modifiers and novelty keys.",
+   "single_size_mm": 3.6,
+   "_single_size_mm": "Single alpha or ordinary key legend size.",
+   "arrow_size_mm": 4.0,
+   "_arrow_size_mm": "Centered navigation arrow glyph size.",
+   "shifted_legends": {
+    "`": [
+     "~",
+     "`"
+    ],
+    "1": [
+     "!",
+     "1"
+    ],
+    "2": [
+     "@",
+     "2"
+    ],
+    "3": [
+     "#",
+     "3"
+    ],
+    "4": [
+     "$",
+     "4"
+    ],
+    "5": [
+     "%",
+     "5"
+    ],
+    "6": [
+     "^",
+     "6"
+    ],
+    "7": [
+     "&",
+     "7"
+    ],
+    "8": [
+     "*",
+     "8"
+    ],
+    "9": [
+     "(",
+     "9"
+    ],
+    "0": [
+     ")",
+     "0"
+    ],
+    "-": [
+     "_",
+     "-"
+    ],
+    "=": [
+     "+",
+     "="
+    ],
+    "[": [
+     "{",
+     "["
+    ],
+    "]": [
+     "}",
+     "]"
+    ],
+    "\\": [
+     "|",
+     "\\"
+    ],
+    ";": [
+     ":",
+     ";"
+    ],
+    "'": [
+     "\"",
+     "'"
+    ],
+    ",": [
+     "<",
+     ","
+    ],
+    ".": [
+     ">",
+     "."
+    ],
+    "/": [
+     "?",
+     "/"
+    ]
+   },
+   "_shifted_legends": "Exact US ANSI shifted pairs, stacked small-over-primary at the top-left of each key.",
+   "modifier_icons": {
+    "Tab": "tab_arrows",
+    "Caps": "caps_lock",
+    "Shift": "shift",
+    "Ctrl": "ctrl",
+    "Win": "command",
+    "Alt": "alt",
+    "Fn": "menu",
+    "Bksp": "left_arrow",
+    "Enter": "enter",
+    "Esc": "circle_return",
+    "M1": "circle_return",
+    "M2": "chevrons",
+    "M3": "framed_grid",
+    "M4": "diamond"
+   },
+   "_modifier_icons": "Raised vector kit variants: chevron Ctrl, command-loop Win, option Alt, diamond M4, outline Shift, padlock Caps, opposing Tab arrows, Backspace/Enter arrows.",
+   "arrow_glyphs": {
+    "Up": "up",
+    "Down": "down",
+    "Left": "left_arrow",
+    "Right": "right_arrow"
+   },
+   "_arrow_glyphs": "Custom raised arrow outlines used on the navigation keys.",
+   "homing_labels": [
+    "F",
+    "J"
+   ],
+   "_homing_labels": "Keys that receive the X-Ray kit's raised tactile homing bar.",
+   "homing_x_mm": 0.0,
+   "_homing_x_mm": "Homing bar centered across the key top, matching the kit's tactile front-center mark.",
+   "homing_y_mm": -3.8,
+   "_homing_y_mm": "Homing bar sits toward the front from the dish center.",
+   "homing_width_mm": 3.2,
+   "_homing_width_mm": "Length of the raised homing bar.",
+   "homing_depth_mm": 0.42,
+   "_homing_depth_mm": "Fore-aft width of the raised homing bar.",
+   "homing_height_mm": 0.12,
+   "_homing_height_mm": "Height of the tactile homing bar above the dished top.",
+   "homing_radius_mm": 0.18,
+   "_homing_radius_mm": "Small edge round on the homing bar.",
+   "stem_arm_mm": 2.0,
+   "_stem_arm_mm": "Reach from MX socket center to the end of the outer cross arms.",
+   "stem_halfwidth_mm": 0.68,
+   "_stem_halfwidth_mm": "Half-width of each outer MX socket cross arm.",
+   "socket_arm_mm": 1.62,
+   "_socket_arm_mm": "Reach of the open female cross socket cavity.",
+   "socket_halfwidth_mm": 0.42,
+   "_socket_halfwidth_mm": "Half-width of the female MX cross socket channel.",
+   "stem_z0_mm": 0.9,
+   "_stem_z0_mm": "MX socket begins above the skirt lip underside.",
+   "socket_roof_mm": 0.65,
+   "_socket_roof_mm": "White PBT roof thickness above the socket void; socket wall height reaches the underside of each row's top.",
+   "skin_grain_scale_per_m": 7000.0,
+   "skin_grain_bump_mm": 0.02,
+   "skin_grain_strength": 0.65,
+   "_skin_grain": "7000/m stochastic frost micrograin,20micron amplitude0.65strength; local0.045..0.32roughness for glints.",
+   "skin_roughness_range": [
+    0.045,
+    0.32
+   ],
+   "icon_sizes_mm": {
+    "M1": 5.4,
+    "M2": 4.2,
+    "M3": 4.2,
+    "M4": 4.2,
+    "Tab": 3.6
+   },
+   "_icon_sizes_mm": "Reference-sized strokes: circle novelty5.4 normalization, other Mnovelties4.2, Tab3.6; ordinary modifiers3.4."
+  }
  },
  "internals": {
   "_doc": "positions in the half frame, mm; rot about z, deg",
@@ -429,9 +774,9 @@
   }
  },
  "logo": {
-  "wing_span_mm": 10.0,
-  "_wing_span": "vertex to tip in x per wing (C curve is 12 wide -> scale 10/12)",
-  "stroke_mm": 1.2,
+  "wing_span_mm": 7.5,
+  "_wing_span": "7.5mm per wing, fits the empty 1u cell above Right.",
+  "stroke_mm": 1.0,
   "inlay_depth_mm": 0.6,
   "_inlay": "stainless strip, top flush with the frame top, round ends",
   "vertex_inset_mm": 0.3,
@@ -442,29 +787,43 @@
    "L": "L26",
    "R": "R25"
   },
-  "_anchor": "G / H: vertex = anchor key centre projected onto the inner edge line",
+  "_anchor": "Legacy G/H projections retained ONLY as half pose datums. No seam inlays generated.",
   "_axis": "gull y axis runs along the inner edge direction, wing extends away from the edge into the bezel",
   "min_clear_to_opening_mm": 1.0,
-  "material": "stainless_polished"
+  "material": "stainless_polished",
+  "full_right": true,
+  "right_key": "R16",
+  "up_key": "R13",
+  "vertex_y_offset_mm": -3.0,
+  "keepout_mm": 17.0,
+  "keepout_y_offset_mm": 4.0,
+  "proud_mm": 0.02,
+  "groove_margin_mm": 0.15,
+  "groove_depth_mm": 0.1,
+  "groove_recess_mm": 0.05,
+  "_full_right": "One variant C, vertex x from Right and y from Up minus 2. Top reserve square17 centered3 behind vertex; never an opening.",
+  "_groove": "0.15 wider groove, 0.1 extra depth, 0.05 recessed upper edge; inlay 0.02 proud.",
+  "vertex_x_offset_mm": 4.5,
+  "_vertex_position": "Vertex anchored above Right,4.5mm to its right and3mm in front of Up row; numerical stroke clearance4.5mm to opening/outer edge."
  },
  "feet": {
-  "typing_angle_deg": 6.0,
-  "_typing_angle": "placeholder; tilt about the front pads",
+  "typing_angle_deg": 8.0,
+  "_typing_angle": "fixed 8 degree typing datum per Evo75 specification; build_scene pose and support calculations should use this same value",
   "front_pad": {
    "d_mm": 10.0,
-   "h_mm": 1.0,
-   "inset_mm": 12.0,
-   "_note": "2 per half (front-outer, front-inner), rubber, centre inset from the outline",
+   "h_mm": 0.8,
+   "inset_mm": 11.0,
+   "_note": "two soft silicone front contact pads per half, inset from the outline",
    "material": "rubber_clear"
   },
   "rear": {
    "size_mm": [
-    28.0,
+    24.0,
     8.0
    ],
-   "inset_mm": 10.0,
-   "_note": "2 slim bars per half; height from typing angle; frost",
-   "material": "frost_acrylic"
+   "inset_mm": 9.0,
+   "_note": "two rear contact pads, height solved from the shared 8 degree pose datum",
+   "material": "rubber_clear"
   }
  },
  "tent": {
@@ -506,9 +865,12 @@
    "link_pos_frac": 0.6,
    "_link_pos": "pivots at this fraction of arm_len from hinge, lateral offset arm/2+link/2+0.5 on the inner side",
    "over_center_deg": 3.0,
-   "material": "stainless_polished",
-   "level_bar": true
-  }
+   "material": "stainless_brushed",
+   "level_bar": true,
+   "_material": "polished -> brushed (H2): the stowed U must read vs the clear bottom in 05; brushed diffuse reads mid-grey, polished mirrored the dark side"
+  },
+  "enabled": false,
+  "_enabled": "Rev2 tent parked. No tent components/shot; 8degree typing slope remains."
  },
  "hub": {
   "size_mm": [
@@ -593,16 +955,16 @@
  "poses": {
   "_doc": "world placement; each half is first rotated so its inner edge is parallel to world y (align), then the pose applies",
   "flat": {
-   "gap_mm": 75.0,
-   "_gap": "inner-edge to inner-edge distance at the logo vertex",
+   "gap_mm": 55.0,
+   "_gap": "55mm split gap for closer full-setup draft framing.",
    "yaw_deg": 5.0,
    "_yaw": "extra inward yaw: L -yaw, R +yaw (back ends lean in)",
    "hub_xy": [
     0.0,
-    145.0
+    115.0
    ],
    "hub_yaw_deg": 0.0,
-   "_hub_xy": "105->145: hub was reading as touching L's back-inner corner in 01"
+   "_hub_xy": "Hub centered115mm behind pose datum, clearing both cases."
   },
   "together": {
    "seam_mm": 0.2,
@@ -627,46 +989,88 @@
    "_half": "half flipped onto its cap tops for shot 5"
   },
   "exploded": {
-   "gap_mm": 130.0,
+   "gap_mm": 190.0,
    "yaw_deg": 0.0,
    "hub_xy": [
-    0.0,
-    -150.0
+    -140.0,
+    -375.0
    ],
-   "_note": "hub moved in front of the halves (was between them, bridging the stacks)"
+   "_note": "hub moved in front of the halves (was between them, bridging the stacks)",
+   "_hub_xy": "Forward-left clearance for shorter rev2 stacks; separation asserted in camera frame.",
+   "_gap_mm": "130->190 (H3): the hub stack needs a frame channel between the exploded towers"
+  },
+  "plinth": {
+   "hub_xy": [
+    45.0,
+    -45.0
+   ],
+   "_note": "V1 plinth hub beside left half, typing tilt only; parked tent."
   }
  },
  "gasket": {
   "tab_mm": [
-   10.0,
-   6.0
+   8.0,
+   5.0
   ],
-  "_tab": "plate-material tabs: along-edge x outward; outer end at outline inset 2.8 (reaches 1.8 mm INTO the wall via a shell notch, footprint+0.3, z pad-bottom -> lip)",
+  "_tab": "narrow PP plate edge tongues between the paired leaf springs",
   "edge_inset_mm": 2.8,
   "pad_t_mm": 1.4,
   "_pad": "poron pad above (to the lip at 17.5) and below each tab",
-  "spacing_mm": 70.0,
+  "spacing_mm": 62.0,
   "count_min": 6,
   "count_max": 8,
   "material": "gasket_poron",
-  "_positions": "evenly spaced by arc length on the plate outline, nudged >=6 mm from stab housings and the RF module; positions -> derived.json (placeholders for docs/HANDOFF.md)"
+  "_positions": "evenly spaced by arc length on the plate outline, nudged >=6 mm from stab housings and the RF module; positions -> derived.json (placeholders for docs/HANDOFF.md)",
+  "_spacing": "target arc-length spacing for 6-8 visible spring stations around each half",
+  "_count_min": "minimum paired leaf-spring stations per half",
+  "_count_max": "maximum paired leaf-spring stations per half",
+  "leaf_mount": {
+   "_doc": "Visible butterfly support estimates; Evo75 reviews show metal leaves and silicone pads but do not publish leaf dimensions or count.",
+   "pad_material": "gasket_silicone",
+   "_pad_material": "matte silicone-like contact pad under the PP plate edge",
+   "leaf_material": "stainless_polished",
+   "_leaf_material": "polished spring steel stand-in to make the paired leaves readable in the exploded view",
+   "pad_w_mm": 8.0,
+   "_pad_w": "silicone contact pad width along the plate edge",
+   "pad_d_mm": 5.0,
+   "_pad_d": "silicone contact pad depth from shell toward plate",
+   "pad_t_mm": 0.8,
+   "_pad_t": "silicone contact layer thickness",
+   "pad_top_gap_mm": 0.3,
+   "_pad_top_gap": "small render gap between pad and PP plate underside",
+   "pad_edge_mm": 0.35,
+   "_pad_edge": "small softened pad corner radius",
+   "pair_sep_mm": 4.2,
+   "_pair_sep": "center spacing between the two butterfly leaves at one support station",
+   "leaf_span_mm": 13.0,
+   "_leaf_span": "estimated leaf reach along local outward support direction",
+   "leaf_w_mm": 2.2,
+   "_leaf_w": "estimated visible metal spring strip width",
+   "leaf_t_mm": 0.45,
+   "_leaf_t": "estimated leaf stock thickness; not a published Evo75 dimension",
+   "leaf_contact_gap_mm": 0.25,
+   "_leaf_contact_gap": "visual separation between spring crown and silicone contact pad",
+   "leaf_crown_h_mm": 1.2,
+   "_leaf_crown_h": "estimated rise of each formed spring leaf above its anchored ends",
+   "station_inboard_mm": 3.5,
+   "_station_inboard": "Spring stations moved3.5mm inward from plate edge so13mm metal leaves remain inside outer case."
+  }
  },
  "foam": {
   "z_mm": [
-   7.0,
-   9.5
+   5.4,
+   6.6
   ],
-  "_z": "case foam between weight/batt top and PCB",
+  "_z": "1.2mm case foam belowPCB; battery and RF holes through.",
   "outline": "pcb",
   "hole_clear_mm": 0.5,
   "_holes": "RF module + antenna and battery footprints + clear",
   "material": "foam_poron"
  },
  "explode": {
-  "gap_mm": 42.0,
+  "gap_mm": 30.0,
   "_note": "even clearance between consecutive layers' z-extents (real bboxes). u_frame below bottom; case_frame between switches and keycaps",
   "order_bottom_to_top": [
-   "u_frame",
    "bottom",
    "weight",
    "battery_rf",
@@ -683,18 +1087,17 @@
    "hub_bottom",
    "hub_pcb_rf",
    "hub_shell",
-   "hub_oled",
-   "hub_knob"
+   "hub_oled"
   ],
   "layers": {
    "L|R": {
     "u_frame": "_u_frame$|_u_kn|_ulink|_u_hinge$",
-    "bottom": "_bottom$|_pad_|_bar_",
+    "bottom": "_bottom$|_lower_base$|_pad_|_bar_",
     "weight": "_weight$",
     "battery_rf": "_batt|_rf$|_ant$",
     "foam": "_foam$",
     "pcb": "_pcb$|_usb",
-    "gaskets": "_gasket|_gpad",
+    "gaskets": "_gasket|_gpad|_leaf|_silicone",
     "plate": "_plate$",
     "stabilizers": "_stab|_wire",
     "switches": "_swb|_swt|_stem",
@@ -709,7 +1112,26 @@
     "hub_knob": "^hub_knob"
    }
   },
-  "_gap": "20->42: layers read as one block at 20 (gap ~10% of half width)"
+  "_gap": "30mm even bbox clearance between meaningful layers; springs/pads separate from plate.",
+  "inspect_caps": {
+   "L_L25_cap": {
+    "tilt_x_deg": -135.0,
+    "offset_mm": [
+     0.0,
+     -65.0,
+     14.0
+    ]
+   },
+   "R_R26_cap": {
+    "tilt_x_deg": -135.0,
+    "offset_mm": [
+     0.0,
+     -65.0,
+     14.0
+    ]
+   }
+  },
+  "_inspect_caps": "Two loose F/J caps turned135deg and moved65mm forward/14mm up in exploded view only, exposing hollow shell/MXsocket."
  },
  "materials": {
   "_doc": "look parameters (Principled BSDF inputs unless noted); tune in look-dev, keep the tuned values here",
@@ -842,7 +1264,7 @@
     0.54
    ],
    "metallic": 1.0,
-   "roughness": 0.3,
+   "roughness": 0.45,
    "_note": "bead-blasted steel; knob top face (R8)"
   },
   "black_glass": {
@@ -918,6 +1340,37 @@
    ],
    "roughness": 0.5,
    "_note": "matte near-black: USB receptacle interior/back + tongue (R8: glossy black_glass read as white pills)"
+  },
+  "xray_frost_skin": {
+   "base": [
+    0.9,
+    0.91,
+    0.9
+   ],
+   "transmission": 0.9,
+   "roughness": 0.22,
+   "ior": 1.49,
+   "shadow_transmit": 0.92,
+   "_note": "0.18mm clear frost skin with micrograin/roughness variation; white PBT core beneath.",
+   "coat": 0.18
+  },
+  "xray_pbt_white": {
+   "base": [
+    0.9,
+    0.9,
+    0.88
+   ],
+   "roughness": 0.38,
+   "_note": "Opaque warm-white PBT inner body under the clear X-Ray shell."
+  },
+  "gasket_silicone": {
+   "base": [
+    0.38,
+    0.41,
+    0.43
+   ],
+   "roughness": 0.58,
+   "_note": "Grey silicone contact pads for butterfly metal leaf support."
   }
  },
  "render": {
@@ -929,16 +1382,16 @@
   ],
   "draft_pct": 40,
   "_draft_pct": "30->40 for legend legibility (640x800)",
-  "draft_samples": 48,
+  "draft_samples": 32,
   "final_samples": 512,
   "denoise": "OPENIMAGEDENOISE",
   "view_transform": "AgX",
   "look": "AgX - Base Contrast",
   "exposure": -1.5,
   "_exposure": "0 -> -1.25 -> -1.35 -> -1.5: top-lit floor shots land ~185-195, bg B-R ~6",
-  "saturation": 0.9,
-  "black_lift": 0.02,
-  "_grade": "muted: saturation multiplier + slight black lift in the compositor",
+  "saturation": 1.0,
+  "black_lift": 0.0,
+  "_grade": "Warm desk color retained, AgX base contrast, no lift.",
   "bounces": {
    "max": 32,
    "transmission": 24,
@@ -949,7 +1402,8 @@
   },
   "_bounces": "12/12/2/4/4/16 -> 32/24/0/4/6/24: nested clear shells (cap+switch+plate) ate paths -> black squares in caps",
   "blur_glossy": 0.0,
-  "_blur_glossy": "1.0->0.0: A/B look_bottom_A000 vs B030, sharper weight through the clear bottom (grad2 26.9 vs 26.0)"
+  "_blur_glossy": "1.0->0.0: A/B look_bottom_A000 vs B030, sharper weight through the clear bottom (grad2 26.9 vs 26.0)",
+  "_draft_samples": "Draft32spp with OIDN at640x800; no finals."
  },
  "studio": {
   "seamless_size_m": [
@@ -979,15 +1433,15 @@
     1.0
    ]
   },
-  "world_strength": 0.15,
-  "_world": "faint grey ambient = lifted shadows",
+  "world_strength": 0.22,
+  "_world": "0.15->0.22 (H5): lifts the contact shadow under the tented case; still faint",
   "backdrop_light": {
    "size_m": [
     2.6,
     2.6
    ],
-   "power_w": 300.0,
-   "_note": "wash aimed high on the seamless wall; 400->300 for bg target 170-195"
+   "power_w": 180.0,
+   "_note": "wash aimed high on the seamless wall; 400->300->180 (06b bg 220 -> target <=207)"
   },
   "neg_fill": {
    "size_m": [
@@ -1027,28 +1481,59 @@
     2.4
    ],
    "_note": "big emissive plane overhead; camera-invisible, glossy-visible -> metals reflect light grey"
-  }
+  },
+  "reflect_card": {
+   "size_m": [
+    6.0,
+    6.0
+   ],
+   "emission_w": 5.0,
+   "pos": [
+    0.0,
+    -0.2,
+    2.5
+   ],
+   "_note": "H2: huge glossy-only ceiling card so the polished weight/U read as metal in 05_underside (was black mirror). camera/diffuse/transmission/shadow off"
+  },
+  "fill_low": {
+   "size_m": [
+    1.2,
+    0.6
+   ],
+   "pos": [
+    -0.55,
+    -0.3,
+    0.28
+   ],
+   "emission_w": 120.0,
+   "_note": "H5: low emissive card on the -x/-y side, camera-invisible; lifts the case shadow on the desk under the tented half (03b). 150W clipped the front-left floor -> 90"
+  },
+  "plinth_margin_mm": 25.0,
+  "_plinth_margin": "25mm around the subject footprint; fit_plinth uses this value."
  },
  "shots": {
   "1_hero": {
    "pose": "flat",
+   "environment": "desk",
    "view": {
     "az_deg": -35.0,
-    "el_deg": 32.0
+    "el_deg": 48.0
    },
-   "lens_mm": 55.0,
+   "lens_mm": 65.0,
    "fit": {
     "subjects": [
      "L",
      "R",
      "Hub"
     ],
-    "fill": 0.82
+    "fill": 0.9
    },
-   "support": "desk"
+   "support": "desk",
+   "_note": "Closer full setup; hard sun from window."
   },
   "2_top": {
    "pose": "flat",
+   "environment": "desk",
    "view": {
     "az_deg": 0.0,
     "el_deg": 90.0
@@ -1060,12 +1545,13 @@
      "R",
      "Hub"
     ],
-    "fill": 0.85
+    "fill": 0.9
    },
    "support": "desk"
   },
   "3_plinth": {
-   "pose": "tented",
+   "pose": "plinth",
+   "environment": "studio",
    "view": {
     "az_deg": -20.0,
     "el_deg": 6.0
@@ -1077,89 +1563,71 @@
      "Hub",
      "plinth"
     ],
-    "fill": 0.85
+    "fill": 0.88
    },
    "support": "plinth",
    "hide": [
     "R"
-   ]
+   ],
+   "_note": "Retain v1 low grey plinth photograph, typing tilt only; tent parked."
   },
-  "3b_tent": {
-   "pose": "tented",
+  "4_macro_legends": {
+   "pose": "flat",
+   "environment": "desk",
    "view": {
-    "az_deg": -75.0,
-    "el_deg": 14.0
+    "az_deg": -10.0,
+    "el_deg": 56.0
    },
-   "lens_mm": 85.0,
+   "lens_mm": 105.0,
    "fit": {
     "subjects": [
-     "L_u_*",
-     "L_ulink*"
-    ],
-    "fill": 0.5
-   },
-   "support": "desk",
-   "hide": [
-    "R",
-    "Hub"
-   ],
-   "_note": "deployed U-frame + linkage close-up"
-  },
-  "4_gull": {
-   "pose": "together",
-   "view": {
-    "az_deg": 0.0,
-    "el_deg": 60.0
-   },
-   "lens_mm": 100.0,
-   "fstop": 11.0,
-   "focus_mm": [
-    0.0,
-    0.0,
-    24.0
-   ],
-   "fit": {
-    "box_mm": [
-     [
-      -30.0,
-      -22.0,
-      9.0
-     ],
-     [
-      30.0,
-      22.0,
-      39.0
-     ]
+     "L_L25_cap",
+     "L_L26_cap",
+     "L_L24_cap"
     ],
     "fill": 0.9
    },
-   "support": "desk",
-   "hide": [
-    "Hub"
-   ],
-   "_note": "camera on the seam axis; DOF gently soft only"
-  },
-  "5_underside": {
-   "pose": "underside",
-   "view": {
-    "az_deg": -30.0,
-    "el_deg": 50.0
-   },
-   "lens_mm": 60.0,
-   "fit": {
-    "subjects": [
-     "L"
-    ],
-    "fill": 0.8
-   },
+   "fstop": 7.0,
+   "focus_subject": "L_L25_cap",
    "support": "desk",
    "hide": [
     "R",
     "Hub"
-   ]
+   ],
+   "_note": "Three home-row caps near F/G, white legends and sparkle skin; shallow macro DOF.",
+   "glint": true,
+   "exposure": -0.25,
+   "draft_samples": 64,
+   "_draft_samples": "64spp macro draft to retain tiny etched frost; other shots32spp, all denoised640x800."
+  },
+  "5_macro_detail": {
+   "pose": "flat",
+   "environment": "desk",
+   "view": {
+    "az_deg": -30.0,
+    "el_deg": 38.0
+   },
+   "lens_mm": 100.0,
+   "fit": {
+    "subjects": [
+     "L_knob",
+     "L_L00_cap",
+     "L_L04_cap"
+    ],
+    "fill": 0.9
+   },
+   "fstop": 10.0,
+   "focus_subject": "L_knob",
+   "support": "desk",
+   "hide": [
+    "R",
+    "Hub"
+   ],
+   "_note": "Left encoder/corner with scalloped polished knob."
   },
   "6_hub": {
    "pose": "flat",
+   "environment": "desk",
    "view": {
     "az_deg": 35.0,
     "el_deg": 35.0
@@ -1169,7 +1637,7 @@
     "subjects": [
      "Hub"
     ],
-    "fill": 0.75
+    "fill": 0.8
    },
    "support": "desk",
    "hide": [
@@ -1179,6 +1647,7 @@
   },
   "6b_hub_ports": {
    "pose": "flat",
+   "environment": "desk",
    "view": {
     "az_deg": 160.0,
     "el_deg": 20.0
@@ -1188,7 +1657,7 @@
     "subjects": [
      "Hub"
     ],
-    "fill": 0.75
+    "fill": 0.8
    },
    "support": "desk",
    "hide": [
@@ -1198,6 +1667,7 @@
   },
   "7_exploded": {
    "pose": "exploded",
+   "environment": "dark",
    "view": {
     "az_deg": -30.0,
     "el_deg": 21.0
@@ -1209,35 +1679,123 @@
      "R",
      "Hub"
     ],
-    "fill": 0.85
+    "fill": 0.88
    },
    "support": "desk",
-   "_note": "no plinth (it read as a slab the stacks float behind); lowest layer on the seamless; hub in front"
+   "_note": "Dark grey, 3 stacks, leaf/PCB/foam/plate/caps as separate layers."
   }
  },
  "assumptions": [
-  "Corner radii 7 mm (outer), 40 mm concave front kink, 60 mm gentle back kink, 16 mm arrow-shoulder concave: shape-study values, not engineering.",
-  "L half bottom-left (below M4, left of Ctrl): outline kept square (Duo-like slab), the opening follows the same edges so the plate shows there.",
-  "R half arrow cluster: outer edge steps out via a 40 deg shoulder that touches the Right-arrow pitch box corner.",
+  "Both halves share 7.5mm nominal bezel, 8mm major corner radii, seam and section; stagger transitions use explicit generous tangential fillets.",
+  "R arrow shoulder includes a solid logo bay right of Up and above Right; the gull stroke stays outside the key opening.",
   "L inner bottom corner chamfered (322 deg edge) to follow Space/B instead of leaving a wide pad.",
   "Keycap seat height = plate top + 6.0 mm; Cherry row heights R1 9.4 / R2 7.9 / R3 7.6 / R4 8.1 mm and top tilts 8/4/0/-5 deg are approximations (no datasheet).",
-  "Single legend per key (no shifted symbols); Segoe UI Semibold stands in for the X-Ray kit font.",
   "Switch plate holes boolean-cut; no hot-swap sockets, diodes or wiring modelled.",
   "RF module 13 x 18 mm near the inner back corner on the PCB underside; antenna at the +y end. R position nudged -78,34 -> -74,32 to clear the cavity-inset assert.",
-  "Weight = outline inset 12 mm with its back edge at y = 10 mm (clears battery and RF module); 4 mm thick.",
-  "Rear feet height derived from the typing angle; tent U-frame: 70 mm polished bar + 8 mm arms in a clear-bottom pocket, deploy angle solved by bisection to desk contact (~18 deg).",
-  "Tent pose ignores rubber compression; roll axis = line through the inner front pad + inner rear foot contacts.",
-  "Gasket tab positions are placeholders for the CAD handoff (arc-length spacing, nudged off stab/RF keepouts).",
-  "U-frame pocket clears the L outer pad/bar by ~1.2-2.1 mm at W=70 (the free span is ~70 mm); tight but real clearance.",
-  "Hub internals beyond PCB + RF module + OLED + encoder body are not modelled."
+  "Weight = outline inset 12mm with back edge y=10mm, thickness3mm; concept battery/RF clearances remain subject to CAD review.",
+  "Tent geometry and tent shot are parked in rev2; all assembled board shots use the flat 8degree typing pose.",
+  "Hub internals include PCB, RF module and OLED; no hub encoder or knob.",
+  "Rev2 Cherry sculpt and X-Ray font are reference-matched approximations, not licensed tooling/CAD data.",
+  "Evo75 spring count, thickness and contour are not published; leaf mount is a visible parametric concept pending mechanical validation.",
+  "No finals, commits, installs, or SolidWorks model construction in this round."
  ],
  "knob_kb": {
-  "half": "R",
-  "anchor": "R02",
+  "half": "L",
   "d_mm": 16.0,
-  "gap_after_mm": 1.0,
   "box_mm": 18.0,
   "z_gap_mm": 0.6,
-  "_doc": "user 2026-10-02: knob on the right half, right of Backspace. Centre = anchor pitch-box right edge + gap + d/2, anchor y. box_mm = virtual key square fed to outline.py so the case + opening grow around it. Style (knurl etc.) from hub.knob."
+  "_doc": "Encoder position is encoders[] in keys_8.json, top-left LEFT slot. box is opening keepout; gap is knob skirt clearance over deck."
+ },
+ "environments": {
+  "_doc": "Per-shot studio/desk/dark selection; all procedural set dimensions and lighting recorded here.",
+  "desk": {
+   "size_mm": [
+    8000.0,
+    8000.0
+   ],
+   "surface_z_mm": -0.1,
+   "roughness": 0.42,
+   "grain_scale_per_m": 1400.0,
+   "grain_stretch": [
+    0.035,
+    1.0,
+    1.0
+   ],
+   "grain_dark": [
+    0.15,
+    0.075,
+    0.027
+   ],
+   "grain_light": [
+    0.45,
+    0.275,
+    0.125
+   ],
+   "grain_bump_mm": 0.035,
+   "grain_bump_strength": 0.2,
+   "sun_energy": 3.8,
+   "sun_angle_deg": 0.6,
+   "sun_rotation_deg": [
+    58.0,
+    -32.0,
+    -25.0
+   ],
+   "sun_color": [
+    1.0,
+    0.89,
+    0.74
+   ],
+   "window_pos_mm": [
+    -850.0,
+    -250.0,
+    1400.0
+   ],
+   "window_size_mm": [
+    950.0,
+    1100.0
+   ],
+   "window_power_w": 18.0,
+   "window_color": [
+    0.82,
+    0.89,
+    1.0
+   ],
+   "world_color": [
+    0.78,
+    0.86,
+    1.0
+   ],
+   "world_strength": 0.09,
+   "exposure": 0.0,
+   "_note": "Warm oak grain, lower directional sun for long crisp shadows, faint cool window fill. Visual study lighting.",
+   "macro_glint_pos_mm": [
+    -50.0,
+    210.0,
+    280.0
+   ],
+   "macro_glint_target_mm": [
+    -75.0,
+    -15.0,
+    30.0
+   ],
+   "macro_glint_power_w": 3.0,
+   "macro_glint_size_mm": 40.0,
+   "_macro_glint": "Small40mm3W daylight glint aimed at F/G, enabled only on legend macro."
+  },
+  "dark": {
+   "base": [
+    0.045,
+    0.05,
+    0.06
+   ],
+   "world_strength": 0.1,
+   "exposure": -1.2,
+   "_note": "Dark grey cyclorama with retained studio softboxes for separated exploded layers.",
+   "hidden_lights": [
+    "fill_low",
+    "backdrop"
+   ],
+   "_hidden_lights": "Disable the bright v1 low fill and backdrop wash to keep the exploded cyclorama dark grey."
+  }
  }
 }

@@ -1,0 +1,1 @@
+I couldn’t complete the writes: Windows denied access to both new files, and verification confirmed they do not exist. The saved `_neo75.html` is only 3 bytes, so it contains no review text to support Neo75-specific notes. I made no Git or delete operations.

@@ -1,0 +1,4 @@
+Work only in D:\3DProjects\chasm\ref\reviews\. No git, no deletes. The previous run saved the alexotos Neo75/Neo98 review page as _neo75.html and images in neo75-img/ but never wrote its notes. Using _neo75.html (Neo75 parts only), write:
+1. alexotos-neo75.md: (a) mounting system exactly as described (gasket type/material, contact points, plate material/flex cuts, foam, PCB, options), (b) typing feel and sound (short quotes), (c) case shape/dimensions/typing angle/front height and side profile notes, (d) criticisms.
+2. SUMMARY.md: 10 bullets relevant to a split board whose halves are "mini Evo75s" (Evo75 silhouette + typing feel, Neo75 clean lines), gasket/leaf-spring mounted. Also use alexotos-evo75-transcript.txt (the correct regular review, 5q28h3Y2KmM) and ../shape/evo75/SUMMARY.md.
+Verify both files exist at the end (print their first lines).
