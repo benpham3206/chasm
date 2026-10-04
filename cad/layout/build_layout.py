@@ -25,7 +25,8 @@ OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "out")
 # Positions are in key units, screen convention (x right, y down), in each half's own frame.
 # Outer block: unrotated. (x of left edge, y of top edge, width, label)
 LEFT_OUTER = [
-    (-1.25, 0.1, 1, "M1"), (-1.25, 1.1, 1, "M2"), (-1.25, 2.1, 1, "M3"), (-1.25, 3.1, 1, "M4"),
+    # 2026-10-04: macro column moved down one row; the freed top-left slot holds the knob
+    (-1.25, 1.1, 1, "M1"), (-1.25, 2.1, 1, "M2"), (-1.25, 3.1, 1, "M3"), (-1.25, 4.1, 1, "M4"),
     (0.6, 0.1, 1, "`"), (1.6, 0.1, 1, "1"), (2.6, 0.0, 1, "2"),
     (0.35, 1.1, 1.5, "Tab"), (1.85, 1.1, 1, "Q"),
     (0.2, 2.1, 1.75, "Caps"), (1.95, 2.1, 1, "A"),
@@ -61,7 +62,7 @@ PLACE = {
     "L": {"origin": (3.319, 0.0164), "ref_rot": 12.0, "sign": +1, "pivot": (0.5, 0.0)},
     "R": {"origin": (-4.5687, 1.026), "ref_rot": -12.0, "sign": -1, "pivot": (4.75, 0.0)},
 }
-ENCODER = {"L": (-1.25 + 0.5, 4.1 + 0.5)}  # knob position candidate (Duo: rounded cutout), units
+ENCODER = {"L": (-1.25 + 0.5, 0.1 + 0.5)}  # knob centre: top-left slot of the left half (2026-10-04), units
 
 
 def rot(px, py, deg):
@@ -89,6 +90,9 @@ def build(angle):
     return keys
 
 
+CENTRES = {}
+
+
 def to_mm(keys):
     """Per-half world frame for CAD: mm, y UP, origin at the half's key-area bbox centre,
     rotation CCW positive."""
@@ -105,6 +109,7 @@ def to_mm(keys):
         cy = (min(c[1] for c in corners) + max(c[1] for c in corners)) / 2
         span = (max(c[0] for c in corners) - min(c[0] for c in corners),
                 max(c[1] for c in corners) - min(c[1] for c in corners))
+        CENTRES[half] = (cx, cy)
         for i, k in enumerate(hk):
             out.append({"id": f"{half}{i:02d}", "half": half, "label": k["label"], "w_u": k["w"],
                         "x_mm": round((k["cx"] - cx) * U, 3), "y_mm": round(-(k["cy"] - cy) * U, 3),
@@ -221,11 +226,19 @@ def main():
     tag = f"{a.angle:g}"
     keys = build(a.angle)
     mm = to_mm(keys)
+    encs = []
+    for half, (ex, ey) in ENCODER.items():
+        cx, cy = CENTRES[half]
+        encs.append({"half": half, "x_mm": round((ex - cx) * U, 3), "y_mm": round(-(ey - cy) * U, 3),
+                     "slot_u": 1.0, "note": "EC11 knob in a 1u slot (top-left of the left half)"})
     with open(os.path.join(OUT, f"keys_{tag}.json"), "w", encoding="utf-8") as fh:
         json.dump({"angle_deg": a.angle, "unit_mm": U, "frame": "per half, mm, y up, origin = key-area bbox centre",
-                   "keys": mm}, fh, indent=1)
+                   "keys": mm, "encoders": encs}, fh, indent=1)
+    # KLE / ai03: the knob slot is shown as a 1u key labelled Knob (plate gen cuts a 14 mm hole = EC11 clearance)
+    kle_keys = keys + [{"half": h, "label": "Knob", "w": 1.0, "cx": ex, "cy": ey, "rot": 0.0}
+                       for h, (ex, ey) in ENCODER.items()]
     with open(os.path.join(OUT, f"kle_{tag}.json"), "w", encoding="utf-8") as fh:
-        fh.write(kle_text(kle(keys, a.angle)))
+        fh.write(kle_text(kle(kle_keys, a.angle)))
     preview(keys, a.angle, os.path.join(OUT, f"preview_{tag}.png"))
     svgs = [os.path.join(OUT, f"print_{tag}_{half}.svg") for half in ("L", "R")]
     for half, svg in zip(("L", "R"), svgs):

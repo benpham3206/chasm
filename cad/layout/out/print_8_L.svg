@@ -1,17 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="191.8mm" height="146.6mm" viewBox="0 0 191.8 146.6">
 <text x="10" y="8" font-size="4" font-family="sans-serif">chasm L half, 8.0 deg, 1:1. Outer: keycap 18 mm; inner dashed: 14 mm switch hole</text>
-<rect x="10.525" y="22.430" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 19.525 31.430)"/>
-<rect x="12.525" y="24.430" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 19.525 31.430)"/>
-<text x="19.525" y="32.930" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 19.525 31.430)">M1</text>
 <rect x="10.525" y="41.480" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 19.525 50.480)"/>
 <rect x="12.525" y="43.480" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 19.525 50.480)"/>
-<text x="19.525" y="51.980" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 19.525 50.480)">M2</text>
+<text x="19.525" y="51.980" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 19.525 50.480)">M1</text>
 <rect x="10.525" y="60.530" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 19.525 69.530)"/>
 <rect x="12.525" y="62.530" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 19.525 69.530)"/>
-<text x="19.525" y="71.030" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 19.525 69.530)">M3</text>
+<text x="19.525" y="71.030" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 19.525 69.530)">M2</text>
 <rect x="10.525" y="79.580" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 19.525 88.580)"/>
 <rect x="12.525" y="81.580" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 19.525 88.580)"/>
-<text x="19.525" y="90.080" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 19.525 88.580)">M4</text>
+<text x="19.525" y="90.080" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 19.525 88.580)">M3</text>
+<rect x="10.525" y="98.630" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 19.525 107.630)"/>
+<rect x="12.525" y="100.630" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 19.525 107.630)"/>
+<text x="19.525" y="109.130" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 19.525 107.630)">M4</text>
 <rect x="45.767" y="22.430" width="18.000" height="18" rx="1.5" fill="none" stroke="black" stroke-width="0.3" transform="rotate(0.000 54.767 31.430)"/>
 <rect x="47.767" y="24.430" width="14" height="14" fill="none" stroke="#888" stroke-width="0.2" stroke-dasharray="1,1" transform="rotate(0.000 54.767 31.430)"/>
 <text x="54.767" y="32.930" font-size="3.5" text-anchor="middle" font-family="sans-serif" transform="rotate(0.000 54.767 31.430)">`</text>

@@ -9,7 +9,7 @@
    "label": "M1",
    "w_u": 1,
    "x_mm": -76.382,
-   "y_mm": 41.849,
+   "y_mm": 22.799,
    "rot_deg": -0.0,
    "stab": false
   },
@@ -19,7 +19,7 @@
    "label": "M2",
    "w_u": 1,
    "x_mm": -76.382,
-   "y_mm": 22.799,
+   "y_mm": 3.749,
    "rot_deg": -0.0,
    "stab": false
   },
@@ -29,7 +29,7 @@
    "label": "M3",
    "w_u": 1,
    "x_mm": -76.382,
-   "y_mm": 3.749,
+   "y_mm": -15.301,
    "rot_deg": -0.0,
    "stab": false
   },
@@ -39,7 +39,7 @@
    "label": "M4",
    "w_u": 1,
    "x_mm": -76.382,
-   "y_mm": -15.301,
+   "y_mm": -34.351,
    "rot_deg": -0.0,
    "stab": false
   },
@@ -682,6 +682,15 @@
    "y_mm": -35.791,
    "rot_deg": 8.0,
    "stab": false
+  }
+ ],
+ "encoders": [
+  {
+   "half": "L",
+   "x_mm": -76.382,
+   "y_mm": 41.849,
+   "slot_u": 1.0,
+   "note": "EC11 knob in a 1u slot (top-left of the left half)"
   }
  ]
 }
