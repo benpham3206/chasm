@@ -268,20 +268,36 @@ def write_solidworks_handoff(D, keys, geom, derived, path):
     plans = {}
     for half in "LR":
         edges = D["case"]["outline"][half]
-        line_data = ol.lines(edges, keys["keys"], half, unit)
-        plans[half] = {
-            "units": "mm",
-            "origin": "keys_8 half frame",
-            "closed_profile": True,
-            "entities": [{"type": "line", "name": e["name"],
-                          "normal_deg": e["n_deg"],
-                          "line_offset_mm": round(line_data[i][1], 4),
-                          "end_fillet_radius_mm": e["r"]}
-                         for i, e in enumerate(edges)],
-            "filleted_outline_vertices_mm": [[round(x, 4), round(y, 4)]
-                                              for x, y in geom[half]["outline"]],
-            "note": "Line normals/offsets and tangent end radii are the editable CAD recipe; sampled vertices are a check only."
-        }
+        rounded = edges[0].get("rounded_rectangle")
+        if rounded:
+            plans[half] = {
+                "units": "mm", "origin": "keys_8 half frame",
+                "closed_profile": True, "type": "rounded_rectangle",
+                "center_mm": [round(v, 4) for v in rounded["center_mm"]],
+                "width_mm": round(rounded["width_mm"], 4),
+                "depth_mm": round(rounded["depth_mm"], 4),
+                "corner_radius_mm": round(rounded["corner_radius_mm"], 4),
+                "cad_recipe": "Center rectangle at center_mm, dimension W x D, sketch-fillet all four corners with the one stated radius.",
+                "source_bounds_mm": [round(v, 4) for v in rounded["source_bounds_mm"]],
+                "source": rounded["source"],
+                "sampled_outline_vertices_mm": [[round(x, 4), round(y, 4)]
+                                                  for x, y in geom[half]["outline"]],
+                "note": "The sampled loop is a tessellation check only; build the exact four-line/four-arc profile from center/W/D/R."
+            }
+        else:
+            line_data = ol.lines(edges, keys["keys"], half, unit)
+            plans[half] = {
+                "units": "mm", "origin": "keys_8 half frame",
+                "closed_profile": True,
+                "entities": [{"type": "line", "name": e["name"],
+                              "normal_deg": e["n_deg"],
+                              "line_offset_mm": round(line_data[i][1], 4),
+                              "end_fillet_radius_mm": e["r"]}
+                             for i, e in enumerate(edges)],
+                "filleted_outline_vertices_mm": [[round(x, 4), round(y, 4)]
+                                                  for x, y in geom[half]["outline"]],
+                "note": "Line normals/offsets and tangent end radii are the editable CAD recipe; sampled vertices are a check only."
+            }
     case = D["case"]["lower_base"]
     handoff = {
         "_doc": "Draft SolidWorks rebuild data derived from blender/design.json. All geometry is estimated render intent until reviewed in CAD.",
@@ -291,6 +307,10 @@ def write_solidworks_handoff(D, keys, geom, derived, path):
         "plan_outlines": plans,
         "case_section": {
             "axis": "front_to_back (local +y), z up",
+            "construction": "Evo75-family box-over-wedge: constant-height soft-edged upper shell above a continuous reveal, with the lower perimeter tucked inward through the listed loft stations.",
+            "upper_box": {"deck_z_mm": D["case"]["height_mm"],
+                          "lower_reveal_z_mm": case["seam_z_mm"],
+                          "edge_fillet_mm": D["case"]["edge_fillet_mm"]},
             "profile_stations": case["stations"],
             "entities": [
                 {"type": "line", "from": "front_base_tangent", "to": "curve_start", "slope": 0.0},

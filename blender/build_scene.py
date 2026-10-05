@@ -1,7 +1,7 @@
-"""Build the chasm rev2 scene from design.json + keys_8.json.
+"""Build the chasm rev3 scene from design.json + keys_8.json.
 
     blender -b --factory-startup --python-exit-code 1 --python blender/build_scene.py -- \
-        [--pose flat|tented|together|underside] [--save blender/chasm_v2.blend]
+        [--pose flat|tented|together|underside] [--save blender/chasm_v3.blend]
 
 Importable: build(design) -> ctx; set_pose(name, support_z_mm=0).
 Geometry is generated in mm in the half frame (x right, y back, z up, z=0 = case
@@ -590,6 +590,7 @@ def build(design):
     for ob in list(bpy.data.objects):          # factory-startup Cube/Light/Camera
         bpy.data.objects.remove(ob)
     keys = json.load(open(os.path.join(ROOT, design["inputs"]["keys"]), encoding="utf-8"))
+    ol.rev3_plan.synchronize_plan(design, keys)
     kv = ol.knob_virtual_key(design, keys)  # keyboard knob keepout: outlines grow around it
     if kv:
         keys["keys"].append(kv)

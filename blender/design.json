@@ -26,8 +26,8 @@
   "_wall_t": "frost shell wall and lower skirt nominal thickness",
   "lip_bottom_z_mm": 14.3,
   "_lip_bottom_z": "shell cavity ceiling; plate top 12.8 plus 1.5 mm leaf/pad clearance",
-  "bezel_min_mm": 5.5,
-  "_bezel_min": "Minimum through rounded support-line corners; nominal straight bezel7.5mm both halves.",
+  "bezel_min_mm": 5.8994949366116645,
+  "_bezel_min": "Analytic minimum at a rounded bbox corner; straight-side bezel is case.plan.bezel_mm.",
   "opening_clearance_mm": 1.0,
   "_opening_clearance": "top opening = outline edges pulled back to (bezel - clearance); i.e. ~1 mm around the pitch boxes",
   "opening_inset_mm": 5.0,
@@ -44,107 +44,145 @@
      "n_deg": 180,
      "keys": "all",
      "bezel": 7.5,
-     "r": 8.0
+     "r": 14.0,
+     "rounded_rectangle": {
+      "center_mm": [
+       -3.642929596026079e-05,
+       0.00022453597364346933
+      ],
+      "width_mm": 191.8139271414081,
+      "depth_mm": 126.5575509280527,
+      "corner_radius_mm": 14.0,
+      "arc_segments": 30,
+      "semantic_edge_count": 7,
+      "source_bounds_mm": [
+       -85.90700000000001,
+       85.90692714140809,
+       -53.27855092805271,
+       53.278999999999996
+      ],
+      "source": "keys_8 pitch boxes plus encoder/logo virtual keepouts"
+     }
     },
     {
      "name": "front_straight",
      "n_deg": 270,
      "keys": "straight",
      "bezel": 7.5,
-     "r": 40.0
+     "r": 14.0
     },
     {
      "name": "front_angled",
      "n_deg": 262,
      "keys": "angled",
      "bezel": 7.5,
-     "r": 10.0
+     "r": 14.0
     },
     {
      "name": "inner_chamfer",
      "n_deg": 322,
      "keys": "all",
      "bezel": 7.5,
-     "r": 10.0
+     "r": 14.0
     },
     {
      "name": "inner",
-     "n_deg": 356,
+     "n_deg": 0.0,
      "keys": "all",
      "bezel": 7.5,
-     "r": 8.0
+     "r": 14.0,
+     "d": 95.90692714140809
     },
     {
      "name": "back_angled",
      "n_deg": 82,
      "keys": "all",
      "bezel": 7.5,
-     "r": 60.0
+     "r": 14.0
     },
     {
      "name": "back_straight",
      "n_deg": 90,
      "keys": "straight",
      "bezel": 7.5,
-     "r": 8.0
+     "r": 14.0
     }
    ],
    "R": [
     {
      "name": "inner",
-     "n_deg": 184,
+     "n_deg": 180.0,
      "keys": "all",
      "bezel": 7.5,
-     "r": 8.0
+     "r": 14.0,
+     "rounded_rectangle": {
+      "center_mm": [
+       1.7375364292959574,
+       0.00011561598191178746
+      ],
+      "width_mm": 217.0149271414081,
+      "depth_mm": 127.64776876803617,
+      "corner_radius_mm": 14.0,
+      "arc_segments": 30,
+      "semantic_edge_count": 8,
+      "source_bounds_mm": [
+       -96.76992714140809,
+       100.245,
+       -53.823768768036174,
+       53.824
+      ],
+      "source": "keys_8 pitch boxes plus encoder/logo virtual keepouts"
+     },
+     "d": 106.76992714140809
     },
     {
      "name": "front_angled",
      "n_deg": 278,
      "keys": "angled",
      "bezel": 7.5,
-     "r": 40.0
+     "r": 14.0
     },
     {
      "name": "front_straight",
      "n_deg": 270,
      "keys": "straight",
      "bezel": 7.5,
-     "r": 8.0
+     "r": 14.0
     },
     {
      "name": "outer_arrows",
      "n_deg": 0,
      "keys": "all",
      "bezel": 7.5,
-     "r": 8.0
+     "r": 14.0
     },
     {
      "name": "shoulder",
      "n_deg": 40,
      "keys": "R16,RLOGO",
      "bezel": 7.5,
-     "r": 16.0
+     "r": 14.0
     },
     {
      "name": "outer_upper",
      "n_deg": 0,
      "keys": "not:R14,R15,R16,RLOGO",
      "bezel": 7.5,
-     "r": 8.0
+     "r": 14.0
     },
     {
      "name": "back_straight",
      "n_deg": 90,
      "keys": "straight",
      "bezel": 7.5,
-     "r": 60.0
+     "r": 14.0
     },
     {
      "name": "back_angled",
      "n_deg": 98,
      "keys": "all",
      "bezel": 7.5,
-     "r": 8.0
+     "r": 14.0
     }
    ]
   },
@@ -204,7 +242,55 @@
   "opening_px_mm": 0.2,
   "_opening_px": "Numpy/stdlib opening raster sample0.20mm; rounding/margins retain design clearances.",
   "opening_sampling_guard_mm": 0.35,
-  "_opening_sampling_guard": "Extra0.35mm raster expansion compensates cell sampling and rounded pitch-box corners; measured actual opening clearance must stay>=1mm."
+  "_opening_sampling_guard": "Extra0.35mm raster expansion compensates cell sampling and rounded pitch-box corners; measured actual opening clearance must stay>=1mm.",
+  "plan": {
+   "_doc": "One axis-aligned rounded rectangle per half. Width/depth/center are derived from every key pitch box plus encoder/logo keepouts and the uniform bezel.",
+   "bezel_mm": 10.0,
+   "_bezel": "Uniform plan growth outside the key, encoder and logo keepout bounding box.",
+   "hub_radius_scale": 2.0,
+   "_hub_radius_scale": "Shared half-case corner radius = hub r_plan_mm times 2.0; same constant-radius family at the larger product scale.",
+   "arc_segments": 30,
+   "_arc_segments": "Fixed samples per 90 degree arc; remains 124 points at every shell/plate/PCB/loft inset.",
+   "derived": {
+    "L": {
+     "center_mm": [
+      -3.642929596026079e-05,
+      0.00022453597364346933
+     ],
+     "width_mm": 191.8139271414081,
+     "depth_mm": 126.5575509280527,
+     "corner_radius_mm": 14.0,
+     "arc_segments": 30,
+     "semantic_edge_count": 7,
+     "source_bounds_mm": [
+      -85.90700000000001,
+      85.90692714140809,
+      -53.27855092805271,
+      53.278999999999996
+     ],
+     "source": "keys_8 pitch boxes plus encoder/logo virtual keepouts"
+    },
+    "R": {
+     "center_mm": [
+      1.7375364292959574,
+      0.00011561598191178746
+     ],
+     "width_mm": 217.0149271414081,
+     "depth_mm": 127.64776876803617,
+     "corner_radius_mm": 14.0,
+     "arc_segments": 30,
+     "semantic_edge_count": 8,
+     "source_bounds_mm": [
+      -96.76992714140809,
+      100.245,
+      -53.823768768036174,
+      53.824
+     ],
+     "source": "keys_8 pitch boxes plus encoder/logo virtual keepouts"
+    }
+   }
+  },
+  "_outline_rev3": "Each half exterior is one axis-aligned rounded rectangle; the stagger remains only in the top key opening."
  },
  "stack": {
   "_doc": "Rev 2 layer z ranges in the half frame; z=0 is the local case bottom datum before pose transforms.",
@@ -417,20 +503,20 @@
   "material": "xray_frost_skin",
   "legend_material": "legend_white",
   "rev2": {
-   "shell_wall_mm": 0.18,
-   "_shell_wall_mm": "Thin outer frosted skin thickness, leaving the underside shell visibly hollow.",
+   "shell_wall_mm": 0.8,
+   "_shell_wall_mm": "Clear shell wall and inside roof are offset0.8mm from the outside loft/dish; closed at the skirt rim.",
    "body_wall_mm": 1.1,
-   "_body_wall_mm": "Opaque inner PBT body wall thickness under the clear skin.",
-   "body_inset_mm": 0.02,
-   "_body_inset_mm": "Small top inset of the white body from the clear skin.",
-   "body_base_inset_mm": 0.36,
-   "_body_base_inset_mm": "Inward offset at the skirt opening to expose the clear rim.",
-   "body_top_recess_mm": 0.18,
-   "_body_top_recess_mm": "Recess of the white body below the outside top surface.",
+   "_body_wall_mm": "Opaque white injection-moulded inner shell nominal wall thickness, retaining a hollow underside and MX socket.",
+   "body_inset_mm": 0.8,
+   "_body_inset_mm": "White core top plan inset per side from the clear shell, exposing the transparent top/edge band.",
+   "body_base_inset_mm": 0.8,
+   "_body_base_inset_mm": "White core skirt inset per side from the clear shell, exposing a continuous clear lower rim.",
+   "body_top_recess_mm": 0.8,
+   "_body_top_recess_mm": "White core dished surface sits0.8mm below the outer clear dished surface.",
    "dish_depth_mm": 0.5,
    "_dish_depth_mm": "Cylindrical Cherry dish depth, curvature across X with cylinder axis along Y.",
-   "body_dish_depth_mm": 0.47,
-   "_body_dish_depth_mm": "White inner body follows the dish while staying below the clear shell.",
+   "body_dish_depth_mm": 0.5,
+   "_body_dish_depth_mm": "Core uses the same0.5mm cylindrical dish curvature so the physical skin stays near-uniform in section.",
    "top_shrink_mm": [
     5.3,
     3.6
@@ -527,8 +613,8 @@
     ]
    ],
    "_top_edge_profile": "Top plan scale and rim elevation inmm;0.14mm rolled edge joins wall to cylindrical dish with shared mesh vertices.",
-   "legend_proud_mm": 0.06,
-   "_legend_proud_mm": "0.06mm raised white shot to reveal a fine shadow through frosted skin.",
+   "legend_proud_mm": 0.04,
+   "_legend_proud_mm": "White legend surface finishes0.04mm proud of the clear dish for a visible moulded edge/shadow.",
    "icon_stroke_mm": 0.19,
    "_icon_stroke_mm": "Line weight for custom kit-style vector glyphs and novelty legends.",
    "pair_base_size_mm": 3.6,
@@ -683,13 +769,13 @@
    "_stem_z0_mm": "MX socket begins above the skirt lip underside.",
    "socket_roof_mm": 0.65,
    "_socket_roof_mm": "White PBT roof thickness above the socket void; socket wall height reaches the underside of each row's top.",
-   "skin_grain_scale_per_m": 7000.0,
-   "skin_grain_bump_mm": 0.02,
-   "skin_grain_strength": 0.65,
-   "_skin_grain": "7000/m stochastic frost micrograin,20micron amplitude0.65strength; local0.045..0.32roughness for glints.",
+   "skin_grain_scale_per_m": 8200.0,
+   "skin_grain_bump_mm": 0.012,
+   "skin_grain_strength": 0.34,
+   "_skin_grain": "Fine frosted micro-normal:8200 features/m,12micron bump,0.34 strength; roughness varies0.15-0.28 without tinting the clear resin.",
    "skin_roughness_range": [
-    0.045,
-    0.32
+    0.15,
+    0.28
    ],
    "icon_sizes_mm": {
     "M1": 5.4,
@@ -698,7 +784,13 @@
     "M4": 4.2,
     "Tab": 3.6
    },
-   "_icon_sizes_mm": "Reference-sized strokes: circle novelty5.4 normalization, other Mnovelties4.2, Tab3.6; ordinary modifiers3.4."
+   "_icon_sizes_mm": "Reference-sized strokes: circle novelty5.4 normalization, other Mnovelties4.2, Tab3.6; ordinary modifiers3.4.",
+   "skin_thickness_mm": 0.8,
+   "_skin_thickness_mm": "Physical clear outer skin thickness; target0.8mm within the requested0.6-1.0mm X-Ray range.",
+   "legend_core_embed_mm": 0.28,
+   "_legend_core_embed_mm": "White legend columns overlap the opaque core by0.28mm before passing through the clear skin.",
+   "legend_cut_clear_skin": false,
+   "_legend_cut_clear_skin": "Closed clear shell and overlapping solid white second-shot columns: opaque white reaches0.04mm above clear surface. Render geometry avoids unstable icon Boolean cuts; manufacture tooling remains CAD work."
   }
  },
  "internals": {
@@ -1146,7 +1238,23 @@
    "ior": 1.49,
    "volume_scatter_density_per_m": 10.0,
    "shadow_transmit": 0.6,
-   "_note": "translucent frost: trans 0.9, vol scatter 10; shadow_transmit 0.6 fakes diffuse light through"
+   "_note": "translucent frost: trans 0.9, vol scatter 10; shadow_transmit 0.6 fakes diffuse light through",
+   "micro": {
+    "scale_per_m": 18000,
+    "bump_mm": 0.012,
+    "strength": 0.12,
+    "roughness_range": [
+     0.22,
+     0.29
+    ],
+    "normal": "",
+    "roughness": "",
+    "tile_mm": [
+     10,
+     10
+    ],
+    "_note": "Subtle local-mm surface texture; CC0 normal/roughness can replace procedural fallback. Real tile size explicit."
+   }
   },
   "clear_acrylic": {
    "base": [
@@ -1175,12 +1283,12 @@
   "legend_white": {
    "base": [
     0.96,
-    0.96,
-    0.95
+    0.955,
+    0.935
    ],
-   "roughness": 0.35,
-   "subsurface": 0.3,
-   "_note": "double-shot white glyph, no emission (G1)",
+   "roughness": 0.3,
+   "subsurface": 0.1,
+   "_note": "Opaque white second-shot columns physically rise from the core through the clear shell to0.04mm proud; visibility comes from depth, edge shadow and lighting, no tint/emission.",
    "emission_w": 0.0
   },
   "pp_milky": {
@@ -1255,7 +1363,23 @@
    ],
    "metallic": 1.0,
    "roughness": 0.07,
-   "_note": "polished stainless (weight, gull inlays, U-frame, USB shells, stab wire)"
+   "_note": "polished stainless (weight, gull inlays, U-frame, USB shells, stab wire)",
+   "micro": {
+    "scale_per_m": 20000,
+    "bump_mm": 0.002,
+    "strength": 0.07,
+    "roughness_range": [
+     0.055,
+     0.12
+    ],
+    "normal": "",
+    "roughness": "blender/tex/cc0/metal_fingerprint_smudge/Metal049B_2K-JPG_Roughness.jpg",
+    "tile_mm": [
+     100,
+     100
+    ],
+    "_note": "CC0 ambientCG Metal049A clean silver roughness overlay;100mm artistic coverage because source has no calibrated dimensions; albedo remains stainless."
+   }
   },
   "stainless_brushed": {
    "base": [
@@ -1265,7 +1389,29 @@
    ],
    "metallic": 1.0,
    "roughness": 0.45,
-   "_note": "bead-blasted steel; knob top face (R8)"
+   "_note": "bead-blasted steel; knob top face (R8)",
+   "micro": {
+    "scale_per_m": 28000,
+    "bump_mm": 0.006,
+    "strength": 0.16,
+    "roughness_range": [
+     0.27,
+     0.38
+    ],
+    "normal": "",
+    "roughness": "blender/tex/cc0/metal_clean_silver/Metal049A_2K-JPG_Roughness.jpg",
+    "tile_mm": [
+     100,
+     100
+    ],
+    "_note": "CC0 Metal049A overlay with generated directional fine-brush micrograin/aniso. True calibrated brushed texture absent from scout.",
+    "grain_stretch": [
+     1,
+     0.025,
+     1
+    ]
+   },
+   "anisotropic": 0.65
   },
   "black_glass": {
    "base": [
@@ -1343,25 +1489,43 @@
   },
   "xray_frost_skin": {
    "base": [
-    0.9,
-    0.91,
-    0.9
+    0.985,
+    0.988,
+    0.99
    ],
-   "transmission": 0.9,
-   "roughness": 0.22,
-   "ior": 1.49,
-   "shadow_transmit": 0.92,
-   "_note": "0.18mm clear frost skin with micrograin/roughness variation; white PBT core beneath.",
-   "coat": 0.18
+   "transmission": 1.0,
+   "roughness": 0.2,
+   "ior": 1.5,
+   "shadow_transmit": 1.0,
+   "_note": "Physical clear X-Ray outer shell: IOR1.50, full transmission,0.20 frost roughness plus fine micro-normal; neutral near-white base, no visibility tint.",
+   "coat": 0.1,
+   "micro": {
+    "scale_per_m": 8200.0,
+    "bump_mm": 0.012,
+    "strength": 0.34,
+    "roughness_range": [
+     0.15,
+     0.28
+    ],
+    "normal": "blender/tex/cc0/plastic_fine_1/Plastic004_2K-JPG_NormalGL.jpg",
+    "roughness": "blender/tex/cc0/plastic_fine_1/Plastic004_2K-JPG_Roughness.jpg",
+    "tile_mm": [
+     14,
+     14
+    ],
+    "normal_strength": 0.08,
+    "_note": "INDEX recommended CC0 Plastic004 roughness/normal proxy plus fine procedural frost;14mm artistic crop since source scale unlisted. Proxy lacks verified ABS tooling grain."
+   }
   },
   "xray_pbt_white": {
    "base": [
-    0.9,
-    0.9,
-    0.88
+    0.92,
+    0.915,
+    0.895
    ],
-   "roughness": 0.38,
-   "_note": "Opaque warm-white PBT inner body under the clear X-Ray shell."
+   "roughness": 0.34,
+   "_note": "Opaque warm-white PBT inner core and MX socket; slight0.12 subsurface softens the moulded body below the clear skin.",
+   "subsurface": 0.12
   },
   "gasket_silicone": {
    "base": [
@@ -1393,17 +1557,20 @@
   "black_lift": 0.0,
   "_grade": "Warm desk color retained, AgX base contrast, no lift.",
   "bounces": {
-   "max": 32,
-   "transmission": 24,
+   "max": 48,
+   "transmission": 32,
    "volume": 0,
-   "diffuse": 4,
-   "glossy": 6,
-   "transparent": 24
+   "diffuse": 6,
+   "glossy": 8,
+   "transparent": 32
   },
-  "_bounces": "12/12/2/4/4/16 -> 32/24/0/4/6/24: nested clear shells (cap+switch+plate) ate paths -> black squares in caps",
+  "_bounces": "Rev3 nested clear paths: max48/transmission32/diffuse6/glossy8/transparent32; prevents the0.8mm cap shell plus clear switches/plate from exhausting paths and rendering black.",
   "blur_glossy": 0.0,
   "_blur_glossy": "1.0->0.0: A/B look_bottom_A000 vs B030, sharper weight through the clear bottom (grad2 26.9 vs 26.0)",
-  "_draft_samples": "Draft32spp with OIDN at640x800; no finals."
+  "_draft_samples": "Draft32spp with OIDN at640x800; no finals.",
+  "revision": "v3",
+  "preview_samples": 192,
+  "_preview_samples": "1600x2000 hero/macro review frames, higher than32/64spp drafts; no finals."
  },
  "studio": {
   "seamless_size_m": [
@@ -1526,10 +1693,10 @@
      "R",
      "Hub"
     ],
-    "fill": 0.9
+    "fill": 0.74
    },
    "support": "desk",
-   "_note": "Closer full setup; hard sun from window."
+   "_note": "Set occupies74percent frame width for full setup/detail with minimal side margin."
   },
   "2_top": {
    "pose": "flat",
@@ -1569,7 +1736,9 @@
    "hide": [
     "R"
    ],
-   "_note": "Retain v1 low grey plinth photograph, typing tilt only; tent parked."
+   "_note": "Retain v1 low grey plinth photograph, typing tilt only; tent parked.",
+   "exposure": -2.6,
+   "_exposure": "Lower studio exposure1.1stops fromv2 to preserve white cap and plinth highlight detail."
   },
   "4_macro_legends": {
    "pose": "flat",
@@ -1686,18 +1855,28 @@
   }
  },
  "assumptions": [
-  "Both halves share 7.5mm nominal bezel, 8mm major corner radii, seam and section; stagger transitions use explicit generous tangential fillets.",
   "R arrow shoulder includes a solid logo bay right of Up and above Right; the gull stroke stays outside the key opening.",
-  "L inner bottom corner chamfered (322 deg edge) to follow Space/B instead of leaving a wide pad.",
   "Keycap seat height = plate top + 6.0 mm; Cherry row heights R1 9.4 / R2 7.9 / R3 7.6 / R4 8.1 mm and top tilts 8/4/0/-5 deg are approximations (no datasheet).",
   "Switch plate holes boolean-cut; no hot-swap sockets, diodes or wiring modelled.",
   "RF module 13 x 18 mm near the inner back corner on the PCB underside; antenna at the +y end. R position nudged -78,34 -> -74,32 to clear the cavity-inset assert.",
   "Weight = outline inset 12mm with back edge y=10mm, thickness3mm; concept battery/RF clearances remain subject to CAD review.",
-  "Tent geometry and tent shot are parked in rev2; all assembled board shots use the flat 8degree typing pose.",
   "Hub internals include PCB, RF module and OLED; no hub encoder or knob.",
-  "Rev2 Cherry sculpt and X-Ray font are reference-matched approximations, not licensed tooling/CAD data.",
   "Evo75 spring count, thickness and contour are not published; leaf mount is a visible parametric concept pending mechanical validation.",
-  "No finals, commits, installs, or SolidWorks model construction in this round."
+  "No finals, commits, installs, or SolidWorks model construction in this round.",
+  "Rev3 exterior plans are rounded rectangles derived from key/encoder/logo bounds plus10mm bezel, sharedR14mm corners scaled2x from hubR7mm.",
+  "Rev3 physical clear X-Ray shell thickness and opaque white core/legend depth are parametric concept estimates matched to reference photos.",
+  "Rev3 exterior plans are rounded rectangles derived from key/encoder/logo bounds plus10mm bezel, sharedR14mm corners scaled2x from hubR7mm.",
+  "Rev3 physical clear X-Ray shell thickness and opaque white core/legend depth are parametric concept estimates matched to reference photos.",
+  "Rev3 exterior plans are rounded rectangles derived from key/encoder/logo bounds plus10mm bezel, sharedR14mm corners scaled2x from hubR7mm.",
+  "Rev3 physical clear X-Ray shell thickness and opaque white core/legend depth are parametric concept estimates matched to reference photos.",
+  "Rev3 exterior plans are rounded rectangles derived from key/encoder/logo bounds plus10mm bezel, sharedR14mm corners scaled2x from hubR7mm.",
+  "Rev3 physical clear X-Ray shell thickness and opaque white core/legend depth are parametric concept estimates matched to reference photos.",
+  "Rev3 exterior plans are rounded rectangles derived from key/encoder/logo bounds plus10mm bezel, sharedR14mm corners scaled2x from hubR7mm.",
+  "Rev3 physical clear X-Ray shell thickness and opaque white core/legend depth are parametric concept estimates matched to reference photos.",
+  "Rev3 exterior plans are rounded rectangles derived from key/encoder/logo bounds plus10mm bezel, sharedR14mm corners scaled2x from hubR7mm.",
+  "Rev3 physical clear X-Ray shell thickness and opaque white core/legend depth are parametric concept estimates matched to reference photos.",
+  "Rev3 exterior plans are rounded rectangles derived from key/encoder/logo bounds plus10mm bezel, sharedR14mm corners scaled2x from hubR7mm.",
+  "Rev3 physical clear X-Ray shell thickness and opaque white core/legend depth are parametric concept estimates matched to reference photos."
  ],
  "knob_kb": {
   "half": "L",
@@ -1780,7 +1959,43 @@
    ],
    "macro_glint_power_w": 3.0,
    "macro_glint_size_mm": 40.0,
-   "_macro_glint": "Small40mm3W daylight glint aimed at F/G, enabled only on legend macro."
+   "_macro_glint": "Small40mm3W daylight glint aimed at F/G, enabled only on legend macro.",
+   "gobo": {
+    "target_mm": [
+     -100,
+     0,
+     0
+    ],
+    "distance_mm": 600,
+    "span_mm": 2000,
+    "pitch_mm": 105,
+    "bar_width_mm": 18,
+    "bar_depth_mm": 5,
+    "count": 19,
+    "angle_deg": 22,
+    "_note": "Physical window/blind slats perpendicular to sunlight, shadow only; crisp18mm bands spaced105mm in gobo plane."
+   },
+   "texture": {
+    "color": "blender/tex/cc0/white_oak_veneer/white_oak_veneer_diff_2k.jpg",
+    "roughness": "blender/tex/cc0/white_oak_veneer/white_oak_veneer_rough_2k.jpg",
+    "normal": "blender/tex/cc0/white_oak_veneer/white_oak_veneer_nor_gl_2k.jpg",
+    "height": "blender/tex/cc0/white_oak_veneer/white_oak_veneer_disp_2k.jpg",
+    "tile_mm": [
+     500,
+     500
+    ],
+    "rotation_deg": 90,
+    "normal_strength": 0.45,
+    "height_mm": 0.08,
+    "_note": "CC0 PolyHaven white_oak_veneer; source tile50x50cm. World XY mapping500mm bothaxes,90degree rotation only; no stretching."
+   },
+   "hdri": {
+    "path": "blender/tex/cc0/blinds/blinds_4k.exr",
+    "strength": 0.12,
+    "rotation_deg": 45,
+    "_note": "CC0 PolyHaven blinds4K interior. Low-strength reflection/fill; explicit sun and opaque blind geometry create hard shadows."
+   },
+   "_texture_deviations": "INDEX has no qualified frosted acrylic or directional brushed stainless; procedural micrograin supplies those, Plastic004 proxy supplies cap map. Geometric slats replace absent binary gobo."
   },
   "dark": {
    "base": [

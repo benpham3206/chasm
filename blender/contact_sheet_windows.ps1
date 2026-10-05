@@ -1,7 +1,7 @@
 Add-Type -AssemblyName System.Drawing
 $root = Split-Path -Parent $PSScriptRoot
-$src = Join-Path $root 'renders/stills/v2/draft'
-$out = Join-Path $root 'renders/review/v2_contact.jpg'
+$src = Join-Path $root 'renders/stills/v3/draft'
+$out = Join-Path $root 'renders/review/v3_contact.jpg'
 $names = @('01_hero','02_top','03_plinth','04_macro_legends','05_macro_detail','06_hub','06b_hub_ports','07_exploded')
 $cellW = 360; $cellH = 450; $pad = 12; $labelH = 28; $cols = 3; $rows = 3
 $bitmap = [System.Drawing.Bitmap]::new($cols*$cellW+($cols+1)*$pad,$rows*($cellH+$labelH)+($rows+1)*$pad)

@@ -1,4 +1,4 @@
-"""3x3 contact sheet of the eight rev2 drafts -> renders/review/v2_contact.jpg
+"""3x3 contact sheet of the eight rev3 drafts -> renders/review/v3_contact.jpg
 
     python blender/contact_sheet.py
 """
@@ -13,8 +13,8 @@ except ModuleNotFoundError:
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-SRC = os.path.join(ROOT, "renders", "stills", "v2", "draft")
-OUT = os.path.join(ROOT, "renders", "review", "v2_contact.jpg")
+SRC = os.path.join(ROOT, "renders", "stills", "v3", "draft")
+OUT = os.path.join(ROOT, "renders", "review", "v3_contact.jpg")
 
 NAMES = ["01_hero", "02_top", "03_plinth", "04_macro_legends", "05_macro_detail",
          "06_hub", "06b_hub_ports", "07_exploded"]

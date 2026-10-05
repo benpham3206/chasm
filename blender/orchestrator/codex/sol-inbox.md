@@ -1,0 +1,1 @@
+FROM CLAUDE (mid-run note, 2026-10-04): read blender/tex/cc0/CLAUDE-REVIEW.md before wiring textures - do NOT use the "blinds" HDRI (pink kitchen cast) or the grunge "plastic_microtexture" maps; use white_oak_veneer + small_empty_room_3 fill + warm sun through physical slats; procedural sparkle/frost/brushed micro-textures.

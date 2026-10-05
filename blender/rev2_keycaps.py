@@ -189,7 +189,12 @@ def _legend_mesh(cap, text, size_mm, pos, row, kc, material, coll, fonts, bs,
     if font:
         cu.font = font
     cu.size = _mm(size_mm) * _font_scale(font, bs)
-    legend_thickness = kc.get("legend", {}).get("thickness_mm", 0.5)
+    cfg = kc.get("rev2", {})
+    # The white second shot is a column, not a decal: it starts inside the
+    # opaque core and passes through a matching opening in the clear skin.
+    legend_thickness = (cfg.get("skin_thickness_mm", cfg.get("shell_wall_mm", 0.8)) +
+                        cfg.get("legend_core_embed_mm", 0.28) +
+                        cfg.get("legend_proud_mm", 0.04))
     cu.extrude = _mm(legend_thickness)
     cu.align_x = 'LEFT'
     cu.align_y = 'BOTTOM'
@@ -212,12 +217,14 @@ def _legend_mesh(cap, text, size_mm, pos, row, kc, material, coll, fonts, bs,
         dx, dy = pos[0] - x0, pos[1] - y0
     else:
         dx, dy = pos[0] - x0, pos[1] - y1
-    proud = kc.get("rev2", {}).get("legend_proud_mm", 0.035)
-    thickness = kc.get("legend", {}).get("thickness_mm", 0.5)
+    proud = cfg.get("legend_proud_mm", 0.04)
+    thickness = legend_thickness
+    zmin = min(v.co.z / 0.001 for v in mesh.vertices)
+    zmax = max(v.co.z / 0.001 for v in mesh.vertices)
     for v in mesh.vertices:
         x = v.co.x / 0.001 + dx
         y = v.co.y / 0.001 + dy
-        original_z_mm = v.co.z / 0.001
+        original_z_mm = (v.co.z / 0.001 - zmin) / (zmax - zmin) * thickness
         v.co.x, v.co.y = _mm(x), _mm(y)
         bw = w_u * kc["_unit"] - (kc["_unit"] - kc["base_1u_mm"])
         v.co.z = _mm(_surface_z(x, y, row, kc,
@@ -314,7 +321,8 @@ def _icon_mesh(cap, icon, size_mm, pos, row, kc, material, coll, bs,
     tw = bw - kc["top_shrink_mm"][0]
     shift = kc.get("top_back_shift_mm", 0.5)
     proud = cfg.get("legend_proud_mm", 0.035)
-    thickness = kc.get("legend", {}).get("thickness_mm", 0.5)
+    thickness = (cfg.get("skin_thickness_mm", cfg.get("shell_wall_mm", 0.8)) +
+                 cfg.get("legend_core_embed_mm", 0.28) + proud)
     verts, faces = [], []
 
     def add_segment(a, b):
@@ -383,7 +391,11 @@ def _homing_bar(cap, row, kc, cfg, material, coll, bs):
     y = shift + cfg["homing_y_mm"]
     z = _surface_z(x, y, row, kc, bw, shift)
     w, d, h = cfg["homing_width_mm"], cfg["homing_depth_mm"], cfg["homing_height_mm"]
-    ob = bs.box(f"{cap.name}_homing", x, y, z, z + h, w, d, coll, material)
+    # Tie the tactile bar into the opaque core through the clear skin too.
+    skin = cfg.get("skin_thickness_mm", cfg.get("shell_wall_mm", 0.8))
+    embed = cfg.get("legend_core_embed_mm", 0.28)
+    ob = bs.box(f"{cap.name}_homing", x, y, z - skin - embed, z + h,
+                w, d, coll, material)
     ob.parent = cap
     ob.matrix_parent_inverse = bs.Matrix.Identity(4)
     mod = ob.modifiers.new("homing radius", 'BEVEL')
@@ -398,20 +410,30 @@ def add_details(cap, k, rowcfg, kc, mats, coll, fonts, bs):
     body_mat = mats.get(cfg.get("body_material", "xray_pbt_white"),
                         mats.get(kc.get("legend_material")))
     legend_mat = mats.get(cfg.get("legend_material", kc.get("legend_material")))
-    # The body sits just inside the translucent shell. It duplicates the loft at
-    # a slight inset, so the rim remains clear while the dished field reads white.
+    # The body is a second, hollow injection-moulded shell under a real clear
+    # outer shell. Plan and roof offsets both equal the nominal skin thickness,
+    # leaving an unambiguous refractive rim rather than two nearly coincident
+    # surfaces.
+    skin = cfg.get("skin_thickness_mm", cfg.get("shell_wall_mm", 0.8))
     corekc = dict(kc)
     corecfg = dict(cfg)
     corecfg["shell_wall_mm"] = cfg.get("body_wall_mm", 1.25)
     corecfg["dish_depth_mm"] = cfg.get("body_dish_depth_mm", cfg.get("dish_depth_mm", 0.47))
-    corecfg["top_shrink_mm"] = [v + cfg.get("body_inset_mm", 0.20) for v in
+    base_inset = cfg.get("body_base_inset_mm", skin)
+    top_inset = cfg.get("body_inset_mm", skin)
+    # base_1u is already reduced by 2*base_inset. Adjust the shrink only by
+    # the *difference* so the final top inset is exactly top_inset, not doubled.
+    shrink_delta = 2 * (top_inset - base_inset)
+    corecfg["top_shrink_mm"] = [v + shrink_delta for v in
                                 cfg.get("top_shrink_mm", kc.get("top_shrink_mm", [5.3, 3.6]))]
     corekc["rev2"] = corecfg
-    corekc["base_1u_mm"] = kc["base_1u_mm"] - cfg.get("body_base_inset_mm", 0.18)
+    corekc["base_1u_mm"] = kc["base_1u_mm"] - 2 * base_inset
     core_row = dict(rowcfg)
-    core_row["h_mm"] = rowcfg["h_mm"] - cfg.get("body_top_recess_mm", 0.20)
+    core_row["h_mm"] = rowcfg["h_mm"] - cfg.get("body_top_recess_mm", skin)
     core = build_cap_mesh(f"{cap.name}_white_core_mesh", k["w_u"], core_row, corekc, bs)
-    _object(f"{cap.name}_white_core", core, coll, body_mat, cap, bs)
+    core_ob = _object(f"{cap.name}_white_core", core, coll, body_mat, cap, bs)
+    core_ob["xray_skin_mm"] = skin
+    core_ob["xray_core_wall_mm"] = cfg.get("body_wall_mm", 1.1)
 
     socketcfg = dict(cfg)
     socketcfg["_row_height_mm"] = rowcfg["h_mm"]
@@ -431,17 +453,18 @@ def add_details(cap, k, rowcfg, kc, mats, coll, fonts, bs):
 
     # Two-line pairs follow the X-Ray kit: smaller shifted glyph over the base
     # symbol, aligned to the top-left corner. Modifiers occupy the bottom-left.
+    legend_parts = []
     if label in alphas:
         shifted, base = alphas[label]
         pair_size = cfg.get("pair_base_size_mm", legend.get("alpha_size_mm", 3.6))
         small_size = cfg.get("pair_shift_size_mm", 1.45)
-        _legend_mesh(cap, shifted, small_size, (gx, gy),
-                     rowcfg, kc, legend_mat, coll, fonts, bs,
-                    suffix="legend_shift", symbolic=True, w_u=k["w_u"])
-        _legend_mesh(cap, base, pair_size,
-                     (gx, gy - small_size * 0.70 - cfg.get("pair_line_gap_mm", 0.22)),
-                     rowcfg, kc, legend_mat, coll, fonts, bs,
-                    suffix="legend_base", w_u=k["w_u"])
+        legend_parts.append(_legend_mesh(cap, shifted, small_size, (gx, gy),
+                            rowcfg, kc, legend_mat, coll, fonts, bs,
+                            suffix="legend_shift", symbolic=True, w_u=k["w_u"]))
+        legend_parts.append(_legend_mesh(cap, base, pair_size,
+                            (gx, gy - small_size * 0.70 - cfg.get("pair_line_gap_mm", 0.22)),
+                            rowcfg, kc, legend_mat, coll, fonts, bs,
+                            suffix="legend_base", w_u=k["w_u"]))
     elif label in modifiers:
         icon = modifiers[label]
         size = cfg.get('icon_sizes_mm',{}).get(label,cfg.get("modifier_size_mm", legend.get("mod_size_mm", 2.2)))
@@ -451,21 +474,22 @@ def add_details(cap, k, rowcfg, kc, mats, coll, fonts, bs):
         else:
             pos = (-tw / 2 + mx, shift - td / 2 + my)
             anchor = "bottom-left"
-        _icon_mesh(cap, icon, size, pos, rowcfg, kc, legend_mat, coll, bs,
-                   w_u=k["w_u"], anchor=anchor, suffix="legend_icon")
+        legend_parts.append(_icon_mesh(cap, icon, size, pos, rowcfg, kc,
+                            legend_mat, coll, bs, w_u=k["w_u"],
+                            anchor=anchor, suffix="legend_icon"))
     elif label in ("Up", "Down", "Left", "Right"):
         arrows = cfg.get("arrow_glyphs", {"Up": "up", "Down": "down",
                                            "Left": "left_arrow", "Right": "right_arrow"})
-        _icon_mesh(cap, arrows[label], cfg.get("arrow_size_mm", 4.0),
-                   (0.0, shift), rowcfg, kc, legend_mat, coll, bs,
-                   w_u=k["w_u"], anchor="center", suffix="legend_arrow")
+        legend_parts.append(_icon_mesh(cap, arrows[label], cfg.get("arrow_size_mm", 4.0),
+                            (0.0, shift), rowcfg, kc, legend_mat, coll, bs,
+                            w_u=k["w_u"], anchor="center", suffix="legend_arrow"))
     else:
         text = legend.get("text", {}).get(label, label)
         if text:
             size = cfg.get("single_size_mm", legend.get("alpha_size_mm", 3.6))
-            _legend_mesh(cap, text, size, (gx, gy), rowcfg,
-                         kc, legend_mat, coll, fonts, bs, suffix="legend",
-                         w_u=k["w_u"])
+            legend_parts.append(_legend_mesh(cap, text, size, (gx, gy), rowcfg,
+                                kc, legend_mat, coll, fonts, bs, suffix="legend",
+                                w_u=k["w_u"]))
 
     if label in cfg.get("homing_labels", ["F", "J"]):
-        _homing_bar(cap, rowcfg, kc, cfg, body_mat, coll, bs)
+        legend_parts.append(_homing_bar(cap, rowcfg, kc, cfg, body_mat, coll, bs))

@@ -1,13 +1,13 @@
-"""Case outlines from keys_8.json + design.json edge lists (pure Python, no bpy).
+"""Case outlines from keys_8.json + design.json (pure Python, no bpy).
 
-Each outline edge = a straight line with outward normal `n_deg`, pushed out to touch the
-furthest key of `keys` (support function) plus `bezel`. Consecutive lines intersect at
-vertices; vertex i (end of edge i) gets a tangent arc of radius `r`. SolidWorks recipe:
-sketch the lines, then sketch-fillet each vertex with the same radii.
+Rev3 case edges carry a ``rounded_rectangle`` record derived from the complete key,
+encoder and logo keepout field.  That record produces four straight sides and four
+equal-radius tangent arcs.  Legacy support-line edge lists remain supported.
 
     python blender/outline.py   -> self-check + blender/tmp/outline_check.png
 """
 import json, math, os
+import rev3_plan
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -16,6 +16,8 @@ ROOT = os.path.dirname(HERE)
 def load():
     design = json.load(open(os.path.join(HERE, "design.json"), encoding="utf-8"))
     keys = json.load(open(os.path.join(ROOT, design["inputs"]["keys"]), encoding="utf-8"))
+    if design.get("case", {}).get("plan"):
+        rev3_plan.synchronize_plan(design, keys)
     kv = knob_virtual_key(design, keys)
     if kv:
         keys["keys"].append(kv)
@@ -92,6 +94,57 @@ def lines(edges, keys, half, unit, inset=0.0):
     return out
 
 
+def _rounded_rectangle_record(edges):
+    if not edges:
+        return None
+    record = edges[0].get("rounded_rectangle")
+    if record and len(edges) != record.get("semantic_edge_count", len(edges)):
+        # Derived profiles such as the cropped stainless weight deliberately
+        # remove/replace support edges; retain their established line recipe.
+        return None
+    return record
+
+
+def _rounded_rectangle(edges, half, inset, seg_deg, r_min):
+    """Return a fixed-cardinality CCW rounded rectangle and semantic stations.
+
+    Arc cardinality is taken from the outer plan rather than recomputed from an
+    inset radius.  Shell, cavity, plate, PCB and lower-loft rings therefore stay
+    vertex-compatible even at the largest configured inset.
+    """
+    q = _rounded_rectangle_record(edges)
+    cx, cy = q["center_mm"]
+    width = q["width_mm"] - 2.0 * inset
+    depth = q["depth_mm"] - 2.0 * inset
+    radius = max(q["corner_radius_mm"] - inset, r_min)
+    if width <= 2.0 * radius or depth <= 2.0 * radius:
+        raise ValueError("rounded rectangle inset collapses its straight runs")
+    nseg = int(q.get("arc_segments", max(2, math.ceil(90.0 / seg_deg))))
+    if nseg < 2:
+        raise ValueError("rounded rectangle needs at least two segments per corner")
+    xmin, xmax = cx - width / 2.0, cx + width / 2.0
+    ymin, ymax = cy - depth / 2.0, cy + depth / 2.0
+    centers = ((xmin + radius, ymin + radius, math.pi, 1.5 * math.pi),
+               (xmax - radius, ymin + radius, -0.5 * math.pi, 0.0),
+               (xmax - radius, ymax - radius, 0.0, 0.5 * math.pi),
+               (xmin + radius, ymax - radius, 0.5 * math.pi, math.pi))
+    pts = []
+    for x, y, a0, a1 in centers:
+        pts.extend((x + radius * math.cos(a0 + (a1 - a0) * j / nseg),
+                    y + radius * math.sin(a0 + (a1 - a0) * j / nseg))
+                   for j in range(nseg + 1))
+
+    # build_scene assigns feet and a legacy logo construction from these eight
+    # stations.  Keep those semantic roles without introducing extra plan edges.
+    if half == "L":
+        V = [(xmin, ymin), (cx, ymin), (xmax, ymin), (xmax, cy),
+             (xmax, ymax), (cx, ymax), (xmin, ymax), (xmin, cy)]
+    else:
+        V = [(xmin, ymin), (cx, ymin), (xmax, ymin), (xmax, cy),
+             (xmax, ymax), (xmax, ymax), (cx, ymax), (xmin, ymax)]
+    return pts, V
+
+
 def intersect(l1, l2):
     (a1, b1), d1 = l1; (a2, b2), d2 = l2
     det = a1 * b2 - a2 * b1
@@ -102,6 +155,9 @@ def outline(edges, keys, half, unit, inset=0.0, seg_deg=3.0, r_min=0.0):
     """CCW closed polyline [(x, y)] mm with filleted vertices. `inset` pulls every edge in
     (convex radii shrink by inset, concave grow, so the inset curve stays parallel)."""
     L = lines(edges, keys, half, unit, inset)
+    if _rounded_rectangle_record(edges):
+        pts, V = _rounded_rectangle(edges, half, inset, seg_deg, r_min)
+        return pts, V, L
     m = len(L)
     V = [intersect(L[i], L[(i + 1) % m]) for i in range(m)]
     pts = []
@@ -160,6 +216,12 @@ def check(design, keys):
                         "size_mm": [round(max(xs) - min(xs), 2), round(max(ys) - min(ys), 2)],
                         "min_bezel_mm": round(bez, 2),
                         "vertices_mm": [[e["name"], round(x, 3), round(y, 3), e["r"]] for e, (x, y) in zip(edges, V)]}
+        if _rounded_rectangle_record(edges):
+            q = _rounded_rectangle_record(edges)
+            report[half]["rounded_rectangle"] = {
+                "center_mm": q["center_mm"], "width_mm": q["width_mm"],
+                "depth_mm": q["depth_mm"], "corner_radius_mm": q["corner_radius_mm"],
+                "sample_count": len(poly)}
     return report
 
 

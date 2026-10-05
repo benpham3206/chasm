@@ -1,4 +1,4 @@
-"""Render the rev2 draft shots. Builds once, re-poses per shot, auto-fits framing.
+"""Render the rev3 draft/preview shots. Builds once, re-poses per shot, auto-fits framing.
 
     blender -b --factory-startup --python-exit-code 1 --python blender/render_shots.py -- \
         [--shots 1,2,3,4,5,6,6b,7] [--draft|--final]
@@ -10,10 +10,11 @@ focus_mm/plinth_xy. The camera aims at the subjects' world bbox centre, the
 distance (or ortho_scale) is binary-searched so the larger projected extent ==
 fill, then shift_x/y centres the bbox (3 iterations).
 
-Outputs renders/stills/v2/{draft|final}/NN_<name>.png + times.json (merged
-after EVERY shot), and saves blender/chasm_v2.blend (flat pose) at the end.
+Outputs renders/stills/v3/{draft|final}/NN_<name>.png + times.json (merged
+after EVERY shot), and saves blender/chasm_v3.blend (flat pose) at the end.
 """
 import bpy, json, os, sys, time, math, fnmatch
+sys.stdout.reconfigure(line_buffering=True)
 from mathutils import Vector, Matrix
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -21,6 +22,8 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 import build_scene as bs
 import rev2_environment as env
+import rev3_surfaces
+import progress
 
 SHOT_ORDER = ["1_hero", "2_top", "3_plinth", "4_macro_legends",
               "5_macro_detail", "6_hub", "6b_hub_ports", "7_exploded"]
@@ -331,16 +334,19 @@ def write_times(outdir, times):
         json.dump(times, fp, indent=1)
 
 
-def render_shots(which, draft=True):
+def render_shots(which, draft=True, preview=False, ctx=None):
     D = json.load(open(os.path.join(HERE, "design.json"), encoding="utf-8"))
     bpy.context.preferences.filepaths.temporary_directory = os.path.join(HERE, "tmp")
-    ctx = bs.build(D)
-    env.build(D, ctx, bs)
+    if ctx is None:
+        ctx = bs.build(D)
+        rev3_surfaces.apply(D, ctx)
+        env.build(D, ctx, bs)
+        progress.record('Parametric rev3 scene and lighting built', 'render and inspect requested shots', 'blender/out/derived.json,solidworks_handoff.json')
     setup_render(D, draft)
     print("[units] scale_length", bpy.context.scene.unit_settings.scale_length,
           bpy.context.scene.unit_settings.length_unit)
-    tag = "draft" if draft else "final"
-    outdir = os.path.join(ROOT, "renders", "stills", "v2", tag)
+    tag = "preview" if preview else ("draft" if draft else "final")
+    outdir = os.path.join(ROOT, "renders", "stills", D['render']['revision'], tag)
     os.makedirs(outdir, exist_ok=True)
     plinth = bpy.data.objects.get("plinth")
     ph = D["studio"]["plinth_mm"][2]
@@ -348,7 +354,7 @@ def render_shots(which, draft=True):
     for n in which:
         key = next(k for k in SHOT_ORDER if k.split("_", 1)[0] == str(n))
         shot = D["shots"][key]
-        bpy.context.scene.cycles.samples=shot.get('draft_samples',D['render']['draft_samples']) if draft else D['render']['final_samples']
+        bpy.context.scene.cycles.samples=shot.get('draft_samples',D['render']['draft_samples']) if draft else D['render']['preview_samples' if preview else 'final_samples']
         env.select(shot.get("environment", "studio"), D, ctx, shot)
         for hcol in ("L", "R", "Hub"):
             ctx["colls"][hcol].hide_render = hcol in shot.get("hide", [])
@@ -380,7 +386,7 @@ def render_shots(which, draft=True):
             # Rev2: closer full setup with safe outer margin.
             fx0, fy0, fx1, fy1 = cam_info["frame"]
             fw, fh = fx1 - fx0, fy1 - fy0
-            assert 0.84 <= fw <= 0.92, f"01 width frac {fw:.3f} out of range"
+            assert 0.70 <= fw <= 0.78, f"01 width frac {fw:.3f} out of range"
             assert fh >= 0.40, f"01 height frac {fh:.3f} < 0.40"
         times[key] = {"seconds": round(time.time() - t0, 1),
                       **cam_info, "frame_ok": frame_ok,
@@ -392,6 +398,7 @@ def render_shots(which, draft=True):
                       "clipped_pct": clip, "bg_mean_srgb": bg,
                       "bg_r_srgb": bg_r, "bg_b_srgb": bg_b}
         write_times(outdir, times)
+        progress.record(f'Rendered {name} {tag} {times[key]}', 'inspect PNGs, finish batch, contact sheet and checkpoint', bpy.context.scene.render.filepath)
         print(f"[shot] {name} {times[key]['seconds']}s clip {clip}% bg {bg}"
               f" (R{bg_r}/B{bg_b}) frame {cam_info['frame']}"
               f" cam {cam_info['cam_mm']}"
@@ -404,17 +411,26 @@ def render_shots(which, draft=True):
         ctx['colls'][cn].hide_render=False
     set_camera(D['shots']['1_hero'],ctx)
     bpy.context.scene.view_settings.exposure = D['shots']['1_hero'].get('exposure', D['environments']['desk']['exposure'])
-    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(ROOT, "blender", "chasm_v2.blend"))
+    bpy.context.preferences.filepaths.save_version = 0
+    bpy.context.preferences.filepaths.file_preview_type = 'NONE'
+    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(ROOT, "blender", "chasm_v3.blend"))
     print("[done] blend saved")
+    return ctx
 
 
 if __name__ == "__main__":
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     which = [1, 2, 3, 4, 5, 6, "6b", 7]
     draft = True
+    preview = False
     for i, a in enumerate(argv):
         if a == "--shots":
             which = [int(x) if x.isdigit() else x for x in argv[i + 1].split(",")]
         elif a == "--final":
             draft = False
-    render_shots(which, draft)
+        elif a == "--preview":
+            draft = False
+            preview = True
+    ctx = render_shots(which, draft, preview)
+    if '--draft-and-preview' in argv:
+        render_shots([1, 4], False, True, ctx)
