@@ -2,6 +2,8 @@
 
 Use agents to increase useful output without letting the architecture sprawl.
 
+Engineering policy (how to plan, build, verify, and debug): <https://github.com/benpham3206/agent-engineering/blob/main/standards/engineering.md>. Rules in this file win where they are more specific.
+
 ## Read before changing code
 
 Read in this order: `GOAL.md` -> `ROADMAP.md` -> `ARCHITECTURE.md` -> `STATUS.md`.
