@@ -1,0 +1,15 @@
+# Single enumeration of the permanent operating layer, consumed by tooling/adopt.sh and the generated scripts/verify-repo.sh.
+GOAL.md
+STATUS.md
+ARCHITECTURE.md
+AGENTS.md
+SECURITY.md
+WORKER_TASK.md
+ARCHITECT_TASK.md
+REVIEWER_TASK.md
+SECURITY_REVIEWER_TASK.md
+RESEARCH_TASK.md
+scripts/backbone.list
+scripts/verify-repo.sh
+scripts/security-check.sh
+scripts/run-hook.sh
