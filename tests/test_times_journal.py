@@ -24,6 +24,19 @@ def load_write_times():
 
 
 class WriteTimesTests(unittest.TestCase):
+    def test_new_times_merge_with_prior_entries(self):
+        write_times = load_write_times()
+        prior = {"prior-shot": {"seconds": 12.0}, "current-shot": {"seconds": 2.0}}
+        updated = {"prior-shot": {"seconds": 12.0}, "current-shot": {"seconds": 4.0}}
+
+        with tempfile.TemporaryDirectory(prefix="chasm-times-test-") as temp:
+            journal = Path(temp) / "times.json"
+            journal.write_text(json.dumps(prior), encoding="utf-8")
+
+            write_times(temp, {"current-shot": {"seconds": 4.0}})
+
+            self.assertEqual(json.loads(journal.read_text(encoding="utf-8")), updated)
+
     def test_interrupted_write_preserves_the_previous_journal(self):
         write_times = load_write_times()
         prior = {"prior-shot": {"seconds": 12.0}}
@@ -42,6 +55,7 @@ class WriteTimesTests(unittest.TestCase):
                     write_times(temp, {"current-shot": {"seconds": 4.0}})
 
             self.assertEqual(json.loads(journal.read_text(encoding="utf-8")), prior)
+            self.assertEqual({path.name for path in Path(temp).iterdir()}, {"times.json"})
 
     def test_invalid_journal_is_not_overwritten(self):
         write_times = load_write_times()

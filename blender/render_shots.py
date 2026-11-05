@@ -13,7 +13,7 @@ fill, then shift_x/y centres the bbox (3 iterations).
 Outputs renders/stills/v3/{draft|final}/NN_<name>.png + times.json (merged
 after EVERY shot), and saves blender/chasm_v3.blend (flat pose) at the end.
 """
-import bpy, json, os, sys, time, math, fnmatch
+import bpy, json, os, sys, time, math, fnmatch, tempfile
 sys.stdout.reconfigure(line_buffering=True)
 from mathutils import Vector, Matrix
 
@@ -324,14 +324,23 @@ def write_times(outdir, times):
     # H8: merge into the existing file so subset --shots runs keep prior entries
     path = os.path.join(outdir, "times.json")
     if os.path.exists(path):
-        try:
-            old = json.load(open(path))
-            old.update(times)
-            times = old
-        except Exception:
-            pass
-    with open(path, "w") as fp:
-        json.dump(times, fp, indent=1)
+        with open(path, encoding="utf-8") as fp:
+            old = json.load(fp)
+        old.update(times)
+        times = old
+
+    temp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=outdir,
+            prefix=".times.", suffix=".tmp", delete=False
+        ) as fp:
+            temp_path = fp.name
+            json.dump(times, fp, indent=1)
+        os.replace(temp_path, path)
+    finally:
+        if temp_path and os.path.exists(temp_path):
+            os.unlink(temp_path)
 
 
 def render_shots(which, draft=True, preview=False, ctx=None):
