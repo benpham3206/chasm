@@ -10,8 +10,8 @@ focus_mm/plinth_xy. The camera aims at the subjects' world bbox centre, the
 distance (or ortho_scale) is binary-searched so the larger projected extent ==
 fill, then shift_x/y centres the bbox (3 iterations).
 
-Outputs renders/stills/v3/{draft|final}/NN_<name>.png + times.json (merged
-after EVERY shot), and saves blender/chasm_v3.blend (flat pose) at the end.
+Outputs renders/stills/v3/{draft|final}/NN_<name>.png + times.json (atomically
+merged after EVERY shot), and saves blender/chasm_v3.blend (flat pose) at the end.
 """
 import bpy, json, os, sys, time, math, fnmatch, tempfile
 sys.stdout.reconfigure(line_buffering=True)
